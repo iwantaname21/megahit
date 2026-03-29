@@ -10,6 +10,8 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   const animRef = useRef(null);
   const pulseT = useRef(0);
   const offRef = useRef(null);
+  const lastW = useRef(0);
+  const lastH = useRef(0);
 
   dataRef.current = data;
   winRef.current = isWinning;
@@ -46,11 +48,16 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const h = Math.round(rect.height);
       if (w === 0 || h === 0) { animRef.current = requestAnimationFrame(draw); return; }
 
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      // Resize only when dimensions change — setting canvas.width is expensive
       if (!offRef.current) offRef.current = document.createElement('canvas');
-      offRef.current.width = w * dpr;
-      offRef.current.height = h * dpr;
+      if (w !== lastW.current || h !== lastH.current) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        offRef.current.width = w * dpr;
+        offRef.current.height = h * dpr;
+        lastW.current = w;
+        lastH.current = h;
+      }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
