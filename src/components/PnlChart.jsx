@@ -147,15 +147,38 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       ctx.lineCap = 'round';
       ctx.stroke();
 
-      // Gradient fill
+      // Gradient fill — vertical fade + horizontal edge fade
       ctx.lineTo(lastX, h);
       ctx.lineTo(xArr[0], h);
       ctx.closePath();
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, `rgba(${rgb}, 0.22)`);
-      grad.addColorStop(1, `rgba(${rgb}, 0.01)`);
-      ctx.fillStyle = grad;
+
+      // First fill with vertical gradient
+      const vertGrad = ctx.createLinearGradient(0, 0, 0, h);
+      vertGrad.addColorStop(0, `rgba(${rgb}, 0.24)`);
+      vertGrad.addColorStop(0.7, `rgba(${rgb}, 0.06)`);
+      vertGrad.addColorStop(1, `rgba(${rgb}, 0.0)`);
+      ctx.fillStyle = vertGrad;
       ctx.fill();
+
+      // Apply horizontal edge fade using destination-out compositing
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      const fadeW = w * 0.18;
+
+      // Left edge fade
+      const leftFade = ctx.createLinearGradient(0, 0, fadeW, 0);
+      leftFade.addColorStop(0, 'rgba(0,0,0,0.85)');
+      leftFade.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = leftFade;
+      ctx.fillRect(0, 0, fadeW, h);
+
+      // Right edge fade
+      const rightFade = ctx.createLinearGradient(w - fadeW, 0, w, 0);
+      rightFade.addColorStop(0, 'rgba(0,0,0,0)');
+      rightFade.addColorStop(1, 'rgba(0,0,0,0.85)');
+      ctx.fillStyle = rightFade;
+      ctx.fillRect(w - fadeW, 0, fadeW, h);
+      ctx.restore();
 
       // Markers for results screen — entry=red, exit=green
       if (markers) {
