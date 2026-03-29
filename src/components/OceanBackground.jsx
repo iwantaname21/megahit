@@ -15,12 +15,11 @@ export default function OceanBackground() {
     let t = 0;
 
     const draw = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      // Use screen dimensions so pinch-to-zoom doesn't shrink the canvas
+      const w = Math.max(window.innerWidth, screen.width);
+      const h = Math.max(window.innerHeight, screen.height);
       canvas.width = w * dpr;
       canvas.height = h * dpr;
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       t += 0.008;
@@ -102,8 +101,17 @@ export default function OceanBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
+      className="pointer-events-none"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 0,
+        minWidth: '100%',
+        minHeight: '100%',
+      }}
     />
   );
 }

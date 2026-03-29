@@ -192,15 +192,15 @@ export default function TradingScreen() {
   const shakeAnim = useMemo(() => {
     if (milestoneShake === 'up')
       return {
-        x: [0, -2, 2.5, -1.5, 1, 0],
-        y: [0, -1.5, 1, -0.5, 0],
-        transition: { duration: 0.6, ease: 'easeOut' },
+        x: [0, -1, 1.2, -0.7, 0.4, 0],
+        y: [0, -0.8, 0.5, -0.2, 0],
+        transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] },
       };
     if (milestoneShake === 'down')
       return {
-        x: [0, -3, 3.5, -2, 2, -1, 0],
-        y: [0, 2, -1, 0.5, 0],
-        transition: { duration: 0.7, ease: 'easeOut' },
+        x: [0, -1.5, 1.8, -1, 0.6, -0.3, 0],
+        y: [0, 1, -0.5, 0.2, 0],
+        transition: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] },
       };
     return {};
   }, [milestoneShake]);
