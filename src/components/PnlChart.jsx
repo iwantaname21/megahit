@@ -9,8 +9,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   const sparklesRef = useRef([]);
   const animRef = useRef(null);
   const pulseT = useRef(0);
-  const offRef = useRef(null); // cached offscreen canvas
-  const sizeRef = useRef({ w: 0, h: 0 }); // cached dimensions
+  const offRef = useRef(null);
 
   dataRef.current = data;
   winRef.current = isWinning;
@@ -45,23 +44,13 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const rect = canvas.getBoundingClientRect();
       const w = Math.round(rect.width);
       const h = Math.round(rect.height);
+      if (w === 0 || h === 0) { animRef.current = requestAnimationFrame(draw); return; }
 
-      // Ensure offscreen canvas exists
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
       if (!offRef.current) offRef.current = document.createElement('canvas');
-
-      // Only resize canvases when dimensions actually change
-      if (w > 0 && h > 0 && (sizeRef.current.w !== w || sizeRef.current.h !== h)) {
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        offRef.current.width = w * dpr;
-        offRef.current.height = h * dpr;
-        sizeRef.current = { w, h };
-      }
-
-      if (w === 0 || h === 0) {
-        animRef.current = requestAnimationFrame(draw);
-        return;
-      }
+      offRef.current.width = w * dpr;
+      offRef.current.height = h * dpr;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
