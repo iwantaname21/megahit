@@ -34,9 +34,9 @@ export function calcPnl({ currentPrice, entryPrice, leverage, side, positionSize
 
 export function nextPrice(currentPrice, leverage) {
   // Target: ±20-30% PnL per minute at any leverage.
-  // At 200ms ticks: 300 ticks/min. std = sqrt(300) * σ ≈ 17.3 * σ.
-  // Want PnL% ≈ 0.25 => σ ≈ 0.0144. baseVol = price * 0.025 / leverage.
-  const baseVolatility = (currentPrice * 0.025) / leverage;
+  // At 100ms ticks: 600 ticks/min. std = sqrt(600) * σ ≈ 24.5 * σ.
+  // Want PnL% ≈ 0.25 => σ ≈ 0.0102. baseVol = price * 0.0177 / leverage.
+  const baseVolatility = (currentPrice * 0.0177) / leverage;
   const delta = (Math.random() - 0.5) * baseVolatility * 2;
   return currentPrice + delta;
 }

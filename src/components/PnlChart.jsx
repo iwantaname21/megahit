@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-const TICK_MS = 200;
+const TICK_MS = 100;
 
 export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null, pnlPercent = 0 }) {
   const canvasRef = useRef(null);
@@ -266,6 +266,41 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       oc.fillRect(w - fadeW, 0, fadeW, h);
 
       ctx.drawImage(off, 0, 0, w * dpr, h * dpr, 0, 0, w, h);
+
+      // Right-side percentage axis (live mode only)
+      if (!markers && n > 2 && domMax !== domMin) {
+        ctx.font = "600 9px 'Inter', sans-serif";
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        // Compute $ to % conversion from current data
+        const lastVal = interpVals[interpVals.length - 1];
+        const pctPerDollar = (lastVal !== 0 && pnlPercent !== 0) ? pnlPercent / lastVal : 1;
+
+        // Choose nice tick intervals based on range
+        const rangePct = (domMax - domMin) * Math.abs(pctPerDollar);
+        let step;
+        if (rangePct > 100) step = 25;
+        else if (rangePct > 40) step = 10;
+        else if (rangePct > 15) step = 5;
+        else if (rangePct > 5) step = 2;
+        else step = 1;
+
+        const axisX = w - 4;
+        const minPct = Math.ceil((domMin * pctPerDollar) / step) * step;
+        const maxPct = Math.floor((domMax * pctPerDollar) / step) * step;
+
+        for (let pct = minPct; pct <= maxPct; pct += step) {
+          const dollarVal = pctPerDollar !== 0 ? pct / pctPerDollar : 0;
+          const y = toY(dollarVal);
+          if (y < 10 || y > h - 10) continue;
+
+          const label = (pct >= 0 ? '+' : '') + pct + '%';
+          const labelColor = pct > 0 ? 'rgba(109,208,169,0.5)' : pct < 0 ? 'rgba(255,138,168,0.5)' : 'rgba(19,19,20,0.3)';
+          ctx.fillStyle = labelColor;
+          ctx.fillText(label, axisX, y);
+        }
+      }
 
       // Exit dot (results)
       if (markers) {
