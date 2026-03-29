@@ -188,6 +188,7 @@ const useGameStore = create((set, get) => ({
       realizedPnl: 0,
       isWinning: false,
       currentScreen: 'play',
+      activeTab: 'play',
     });
   },
 }));

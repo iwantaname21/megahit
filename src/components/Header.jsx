@@ -9,7 +9,7 @@ export default function Header({ showNav = false, activeTab, onTabChange }) {
   ];
 
   return (
-    <nav className="w-full flex justify-center items-center px-6 h-16 relative z-50">
+    <nav className="w-full flex justify-center items-center px-6 pt-3 h-20 relative z-50">
       {showNav ? (
         <div className="flex items-center glass-nav rounded-full px-1.5 py-1.5 relative">
           {tabs.map((tab) => (

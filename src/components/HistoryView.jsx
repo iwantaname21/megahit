@@ -7,7 +7,14 @@ function HistoryItem({ trade }) {
 
   return (
     <div
-      className="liquid-glass rounded-2xl p-4 mb-3"
+      className="rounded-2xl p-4 mb-3"
+      style={{
+        background: 'rgba(255,255,255,0.25)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1.5px solid rgba(255,255,255,0.45)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+      }}
     >
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">

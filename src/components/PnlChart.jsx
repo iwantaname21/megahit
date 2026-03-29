@@ -118,7 +118,8 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
 
       const toYVal = (v) => {
         const y = h - 4 - ((v - dom.min) / (dom.max - dom.min)) * (h - 8);
-        return Math.max(4, Math.min(h - 4, y));
+        // Clamp with enough margin for the holographic glow ring (radius ~20px)
+        return Math.max(22, Math.min(h - 22, y));
       };
 
       // Target pixel positions for every point
@@ -179,7 +180,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const zeroY = toYVal(0);
       ctx.beginPath();
       ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = 'rgba(19,19,20,0.12)';
+      ctx.strokeStyle = 'rgba(19,19,20,0.18)';
       ctx.lineWidth = 1;
       ctx.moveTo(0, zeroY);
       ctx.lineTo(w, zeroY);
