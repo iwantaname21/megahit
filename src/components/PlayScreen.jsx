@@ -136,23 +136,32 @@ export default function PlayScreen() {
               </div>
 
               {/* Preset pills — darker trough with sliding pill */}
-              <div className="glass-nav-dark rounded-full px-1.5 py-1.5 flex gap-1">
+              <div className="glass-nav-dark rounded-full px-1.5 py-1.5 flex gap-1 relative">
+                {/* Sliding pill background — always rendered, positioned over active preset */}
+                {[10, 50, 100].includes(Math.round(betAmount)) && (
+                  <motion.div
+                    className="absolute rounded-full sliding-pill"
+                    style={{
+                      top: '6px',
+                      bottom: '6px',
+                      width: 'calc(33.333% - 4px)',
+                      left: `calc(${[10, 50, 100].indexOf(Math.round(betAmount)) * 33.333}% + 6px)`,
+                    }}
+                    animate={{
+                      left: `calc(${[10, 50, 100].indexOf(Math.round(betAmount)) * 33.333}% + 6px)`,
+                    }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                  />
+                )}
                 {[10, 50, 100].map((preset) => (
                   <button
                     key={preset}
                     onClick={() => setBetAmount(Math.min(preset, balance))}
-                    className={`relative flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
+                    className={`relative z-10 flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
                       Math.round(betAmount) === preset ? 'text-[#131314]' : 'text-[#131314]/40'
                     }`}
                   >
-                    {Math.round(betAmount) === preset && (
-                      <motion.div
-                        layoutId="preset-pill"
-                        className="absolute inset-0 rounded-full sliding-pill"
-                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                      />
-                    )}
-                    <span className="relative z-10">${preset}</span>
+                    ${preset}
                   </button>
                 ))}
               </div>
