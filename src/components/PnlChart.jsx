@@ -2,12 +2,11 @@ import React, { useRef, useEffect } from 'react';
 
 const TICK_MS = 200; // must match TradingScreen tick rate
 
-export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null }) {
+export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null, pnlPercent = 0 }) {
   const canvasRef = useRef(null);
   const dataRef = useRef(data);
   const winRef = useRef(isWinning);
   const markersRef = useRef(showMarkers);
-  const milestoneRef = useRef(milestone);
   const sparklesRef = useRef([]);
   const animRef = useRef(null);
   const pulseT = useRef(0);
@@ -17,10 +16,10 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
 
   // Lerp state: smoothly animate the last data point between ticks
   const lerpRef = useRef({
-    prevLen: 0,       // data.length at previous tick
-    fromVal: 0,       // value we're lerping FROM
-    toVal: 0,         // value we're lerping TO
-    tickTime: 0,      // timestamp when new tick arrived
+    prevLen: 0,
+    fromVal: 0,
+    toVal: 0,
+    tickTime: 0,
   });
 
   // Domain state: continuously chase target bounds
@@ -29,16 +28,19 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     dispMax: null,
   });
 
-  // Sparkle milestone tracking (independent 3.5% intervals for dot sparkles)
-  const sparkleUpRef = useRef(0);
-  const sparkleDownRef = useRef(0);
+  // Sparkle: track last trigger point, fire on every ±3.5% move from it
+  const lastSparkleAt = useRef(0); // pnlPercent at last sparkle
 
   dataRef.current = data;
   winRef.current = isWinning;
   markersRef.current = showMarkers;
 
-  // Spawn sparkles on milestone — fires on every transition to non-null
-  if (milestone !== null && milestoneRef.current === null) {
+  // Sparkle logic: fire when pnlPercent moves ±3.5% from last trigger point
+  const SPARKLE_STEP = 3.5;
+  const diff = pnlPercent - lastSparkleAt.current;
+  if (Math.abs(diff) >= SPARKLE_STEP && data && data.length > 2) {
+    const positive = diff > 0;
+    lastSparkleAt.current = pnlPercent; // reset anchor to current
     for (let i = 0; i < 14; i++) {
       sparklesRef.current.push({
         angle: (Math.PI * 2 * i) / 14 + Math.random() * 0.3,
@@ -46,11 +48,10 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         life: 1,
         maxLife: 0.5 + Math.random() * 0.5,
         size: 1.5 + Math.random() * 3,
-        positive: milestone,
+        positive,
       });
     }
   }
-  milestoneRef.current = milestone;
 
   useEffect(() => {
     const canvas = canvasRef.current;

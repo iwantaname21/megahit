@@ -180,7 +180,7 @@ export default function PnlCard({
 
       {/* Chart */}
       <div className="relative z-10 mb-5">
-        <PnlChart data={pnlHistory} isWinning={isWinning} height={110} milestone={milestone} />
+        <PnlChart data={pnlHistory} isWinning={isWinning} height={110} milestone={milestone} pnlPercent={pnlPercent} />
       </div>
 
       {/* Stats bottom bar */}
