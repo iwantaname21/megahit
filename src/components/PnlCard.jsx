@@ -154,7 +154,7 @@ export default function PnlCard({
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5" style={{ color: 'rgba(19,19,20,0.5)' }}>
+          <div className="flex items-center gap-1.5" style={{ color: 'rgba(19,19,20,0.6)' }}>
             <span className="material-symbols-outlined text-sm">schedule</span>
             <span className="text-[11px] font-bold">{formatDuration(elapsedTime)}</span>
           </div>
@@ -189,7 +189,7 @@ export default function PnlCard({
         style={{ borderTop: '1px solid rgba(19,19,20,0.06)' }}
       >
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.48)' }}>
             Balance
           </span>
           <span className="text-[11px] font-bold text-[#131314]">
@@ -200,7 +200,7 @@ export default function PnlCard({
           className="flex flex-col pl-3"
           style={{ borderLeft: '1px solid rgba(19,19,20,0.06)' }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.48)' }}>
             Position
           </span>
           <span className="text-[11px] font-bold text-[#131314]">
@@ -211,7 +211,7 @@ export default function PnlCard({
           className="flex flex-col pl-3"
           style={{ borderLeft: '1px solid rgba(19,19,20,0.06)' }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.48)' }}>
             Realized
           </span>
           <span

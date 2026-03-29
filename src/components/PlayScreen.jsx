@@ -16,9 +16,11 @@ export default function PlayScreen() {
   const { balance, betAmount, setBetAmount, startSpin, activeTab, setActiveTab, tradeHistory } = useGameStore();
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const isSliding = useRef(false); // true when change comes from slider, false from preset click
 
   const lastSliderHaptic = useRef(0);
   const handleSlider = (e) => {
+    isSliding.current = true;
     const val = parseFloat(e.target.value);
     setBetAmount(val);
     const now = Date.now();
@@ -29,7 +31,7 @@ export default function PlayScreen() {
   };
 
   const startDrag = () => setIsDragging(true);
-  const endDrag = () => setIsDragging(false);
+  const endDrag = () => { setIsDragging(false); isSliding.current = false; };
 
   const sliderPct = balance > 0 ? (betAmount / balance) * 100 : 0;
 
@@ -68,7 +70,7 @@ export default function PlayScreen() {
               <div className="mt-4 mb-4 flex flex-col items-center">
                 <motion.button
                   className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
-                  style={{ color: 'rgba(19,19,20,0.35)' }}
+                  style={{ color: 'rgba(19,19,20,0.42)' }}
                   onClick={() => setShowHowItWorks((v) => !v)}
                   {...springBounce}
                 >
@@ -105,7 +107,7 @@ export default function PlayScreen() {
                 <div className="flex flex-col">
                   <span
                     className="font-bold uppercase text-[10px] tracking-widest mb-1"
-                    style={{ color: 'rgba(19,19,20,0.5)' }}
+                    style={{ color: 'rgba(19,19,20,0.6)' }}
                   >
                     BALANCE
                   </span>
@@ -122,7 +124,7 @@ export default function PlayScreen() {
                 <div className="text-right flex flex-col">
                   <span
                     className="font-bold uppercase text-[10px] tracking-widest mb-1"
-                    style={{ color: 'rgba(19,19,20,0.5)' }}
+                    style={{ color: 'rgba(19,19,20,0.6)' }}
                   >
                     BET AMOUNT
                   </span>
@@ -152,14 +154,39 @@ export default function PlayScreen() {
                 />
               </div>
 
-              {/* Preset pills — pill appears instantly on matching preset */}
-              <div className="glass-nav-dark rounded-full px-1.5 py-1.5 flex gap-1 relative">
+              {/* Preset pills — slide on click, fade-in on slider */}
+              <div className="glass-nav-dark rounded-full px-1.5 py-1.5 flex gap-1 relative items-center" style={{ height: '52px' }}>
+                {/* Absolute pill */}
+                <AnimatePresence>
+                  {[10, 50, 100].includes(Math.round(betAmount)) && (() => {
+                    const idx = [10, 50, 100].indexOf(Math.round(betAmount));
+                    const positions = ['6px', 'calc(33.333% + 2px)', 'calc(66.666% - 2px)'];
+                    return (
+                      <motion.div
+                        key="preset-pill"
+                        className="absolute rounded-full sliding-pill"
+                        style={{
+                          top: '6px',
+                          bottom: '6px',
+                          width: 'calc(33.333% - 6px)',
+                        }}
+                        initial={{ opacity: 0, scale: 0.95, left: positions[idx] }}
+                        animate={{ left: positions[idx], opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                        transition={isSliding.current
+                          ? { opacity: { duration: 0.2 }, scale: { duration: 0.2 }, left: { duration: 0 } }
+                          : { opacity: { duration: 0.2 }, scale: { duration: 0.2 }, left: { type: 'spring', stiffness: 350, damping: 25 } }
+                        }
+                      />
+                    );
+                  })()}
+                </AnimatePresence>
                 {[10, 50, 100].map((preset) => (
                   <button
                     key={preset}
-                    onClick={() => { hapticLight(); setBetAmount(Math.min(preset, balance)); }}
-                    className={`relative flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
-                      Math.round(betAmount) === preset ? 'sliding-pill text-[#131314]' : 'text-[#131314]/40'
+                    onClick={() => { isSliding.current = false; hapticLight(); setBetAmount(Math.min(preset, balance)); }}
+                    className={`relative z-10 flex-1 py-3 rounded-full font-bold text-sm flex items-center justify-center transition-colors duration-200 ${
+                      Math.round(betAmount) === preset ? 'text-[#131314]' : 'text-[#131314]/50'
                     }`}
                   >
                     ${preset}
@@ -188,7 +215,7 @@ export default function PlayScreen() {
               </motion.button>
               <span
                 className="mt-5 font-bold uppercase text-[10px] tracking-[0.2em]"
-                style={{ color: 'rgba(19,19,20,0.35)' }}
+                style={{ color: 'rgba(19,19,20,0.42)' }}
               >
                 Press ✚ to spin
               </span>

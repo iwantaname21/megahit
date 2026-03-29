@@ -13,7 +13,7 @@ function Tile({ label, value, mode, flipped = false }) {
     <div className="flex flex-col items-center gap-2">
       <span
         className="font-bold uppercase text-[13px] tracking-widest"
-        style={{ color: 'rgba(19,19,20,0.5)' }}
+        style={{ color: 'rgba(19,19,20,0.6)' }}
       >
         {label}
       </span>

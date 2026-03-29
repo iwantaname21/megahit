@@ -64,7 +64,7 @@ function SpinReel({ label, strip, speed, isLocked }) {
     <div className="flex flex-col items-center gap-2">
       <span
         className="font-bold uppercase text-[13px] tracking-widest"
-        style={{ color: 'rgba(19,19,20,0.5)' }}
+        style={{ color: 'rgba(19,19,20,0.6)' }}
       >
         {label}
       </span>
@@ -168,7 +168,7 @@ export default function LockingScreen() {
         <div className="text-center mb-8">
           <span
             className="font-bold uppercase text-[10px] tracking-widest block mb-2"
-            style={{ color: 'rgba(19,19,20,0.4)' }}
+            style={{ color: 'rgba(19,19,20,0.48)' }}
           >
             {[10, 50, 100].includes(Math.round(betAmount)) ? 'STAKE' : 'CUSTOM STAKE'}
           </span>
@@ -204,7 +204,7 @@ export default function LockingScreen() {
           <span className="material-symbols-outlined text-base" style={{ color: '#131314', fontVariationSettings: "'FILL' 1" }}>lock</span>
           <span
             className="text-[11px] font-extrabold tracking-[0.2em] uppercase"
-            style={{ color: 'rgba(19,19,20,0.5)' }}
+            style={{ color: 'rgba(19,19,20,0.6)' }}
           >
             {phase === 'done' ? 'POSITION LOCKED' : 'LOCKING POSITION'}
           </span>

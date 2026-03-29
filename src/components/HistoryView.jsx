@@ -35,7 +35,7 @@ function HistoryItem({ trade }) {
         </span>
       </div>
       <div className="flex justify-between">
-        <span className="text-[10px] font-bold" style={{ color: 'rgba(19,19,20,0.4)' }}>
+        <span className="text-[10px] font-bold" style={{ color: 'rgba(19,19,20,0.48)' }}>
           {formatDuration(trade.duration)} · ${trade.originalBet.toFixed(0)} bet
         </span>
         <span className="text-[10px] font-bold" style={{ color }}>
@@ -56,7 +56,7 @@ export default function HistoryView({ trades }) {
         >
           history
         </span>
-        <p className="text-[12px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.3)' }}>
+        <p className="text-[12px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.36)' }}>
           No trades yet
         </p>
         <p className="text-[11px] font-bold mt-1" style={{ color: 'rgba(19,19,20,0.2)' }}>
@@ -68,7 +68,7 @@ export default function HistoryView({ trades }) {
 
   return (
     <div className="px-5 pt-4">
-      <p className="text-[10px] font-extrabold uppercase tracking-widest mb-4" style={{ color: 'rgba(19,19,20,0.4)' }}>
+      <p className="text-[10px] font-extrabold uppercase tracking-widest mb-4" style={{ color: 'rgba(19,19,20,0.48)' }}>
         {trades.length} trade{trades.length !== 1 ? 's' : ''}
       </p>
       {trades.map((trade) => (

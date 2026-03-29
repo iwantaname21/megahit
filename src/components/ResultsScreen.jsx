@@ -27,7 +27,7 @@ function FlipTile({ label, value, revealed, delay }) {
     <div className="flex flex-col items-center gap-2">
       <span
         className="font-bold uppercase text-[13px] tracking-widest"
-        style={{ color: 'rgba(19,19,20,0.5)' }}
+        style={{ color: 'rgba(19,19,20,0.6)' }}
       >
         {label}
       </span>
@@ -207,7 +207,7 @@ export default function ResultsScreen() {
             style={{ background: 'rgba(19,19,20,0.05)' }}
           >
             <div className="flex flex-col items-center justify-between pr-4" style={{ borderRight: '1px solid rgba(19,19,20,0.1)' }}>
-              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.48)' }}>
                 Duration
               </span>
               <span className="text-[12px] font-extrabold text-[#131314] mt-1.5">
@@ -215,7 +215,7 @@ export default function ResultsScreen() {
               </span>
             </div>
             <div className="flex flex-col items-center justify-between">
-              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.48)' }}>
                 Entry → Exit
               </span>
               <span className="text-[10px] font-extrabold text-[#131314] whitespace-nowrap mt-1.5">
@@ -223,7 +223,7 @@ export default function ResultsScreen() {
               </span>
             </div>
             <div className="flex flex-col items-center justify-between pl-4" style={{ borderLeft: '1px solid rgba(19,19,20,0.1)' }}>
-              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.48)' }}>
                 Position
               </span>
               <span className="text-[12px] font-extrabold text-[#131314] mt-1.5">
@@ -269,7 +269,7 @@ export default function ResultsScreen() {
 
         {/* Balance footer */}
         <div className="mt-5 text-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.4)' }}>
+          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.48)' }}>
             Balance
           </span>
           <span className="text-[#131314] font-black text-xl ml-2">

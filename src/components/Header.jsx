@@ -17,7 +17,7 @@ export default function Header({ showNav = false, activeTab, onTabChange }) {
               key={tab.key}
               onClick={() => { hapticLight(); onTabChange?.(tab.key); }}
               className={`relative z-10 px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-colors duration-200 ${
-                activeTab === tab.key ? 'text-[#131314]' : 'text-[#131314]/40'
+                activeTab === tab.key ? 'text-[#131314]' : 'text-[#131314]/50'
               }`}
             >
               {/* Sliding pill behind active tab */}
