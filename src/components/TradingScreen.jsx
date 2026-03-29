@@ -8,46 +8,43 @@ import { formatCurrency } from '../lib/simulation';
 const TICK_MS = 150;
 const MILESTONE_STEP = 5;
 
-// Paint splatter blobs — large irregular shapes that splat onto the screen
-function PaintSplatter({ index, positive }) {
-  const greenColors = ['#6DD0A9', '#8befc6', '#50E3C2', '#A8E6CF', '#45B88D', '#6DD0A9'];
-  const redColors = ['#FF4D6A', '#FF8AA8', '#FF6B81', '#E84057', '#D43F5E', '#FF3355'];
-  const palette = positive ? greenColors : redColors;
-  const color = palette[index % palette.length];
+// Liquid glass bubble — circular, transparent, frosted, with refraction highlights
+function GlassBubble({ index, positive }) {
+  const tint = positive ? 'rgba(109,208,169,' : 'rgba(255,77,106,';
+  const borderTint = positive ? 'rgba(139,239,198,' : 'rgba(255,138,168,';
 
-  const left = -10 + Math.random() * 120;
-  const top = Math.random() * 100;
-  const size = 50 + Math.random() * 140;
-  const delay = Math.random() * 0.4;
-  const borderRadius = `${30 + Math.random() * 40}% ${30 + Math.random() * 40}% ${30 + Math.random() * 40}% ${30 + Math.random() * 40}%`;
-  const rotation = Math.random() * 360;
+  const left = -5 + Math.random() * 110;
+  const top = 5 + Math.random() * 90;
+  const size = 30 + Math.random() * 80;
+  const delay = Math.random() * 0.25;
 
   return (
     <motion.div
-      className="absolute pointer-events-none"
+      className="absolute pointer-events-none rounded-full"
       style={{
         left: `${left}%`,
         top: `${top}%`,
         width: size,
-        height: size * (0.3 + Math.random() * 0.7),
-        background: `${color}`,
-        borderRadius,
-        transform: `rotate(${rotation}deg)`,
-        filter: `blur(${1 + Math.random() * 2}px)`,
-        opacity: 0.35,
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        border: `1px solid ${color}40`,
-        boxShadow: `0 0 20px ${color}30, inset 0 0 15px ${color}15`,
+        height: size,
+        background: `${tint}0.12)`,
+        backdropFilter: 'blur(24px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+        border: `1px solid ${borderTint}0.3)`,
+        boxShadow: `
+          inset 0 1px 0 rgba(255,255,255,0.4),
+          inset 0 -1px 0 ${tint}0.1),
+          0 4px 16px ${tint}0.15),
+          0 0 1px rgba(255,255,255,0.3)
+        `,
       }}
-      initial={{ opacity: 0, scale: 0.15 }}
+      initial={{ opacity: 0, scale: 0.2 }}
       animate={{
-        opacity: [0, 0.4, 0.25, 0],
-        scale: [0.15, 1.1, 1.05, 0.95],
+        opacity: [0, 0.6, 0.4, 0],
+        scale: [0.2, 1.05, 1, 0.9],
       }}
       transition={{
-        duration: 0.8,
-        delay: delay * 0.4,
+        duration: 0.9,
+        delay,
         ease: 'easeOut',
       }}
     />
@@ -205,7 +202,7 @@ export default function TradingScreen() {
         {splatters && (
           <div key={`sp-${splattersKey}`} className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
             {Array.from({ length: 14 }).map((_, i) => (
-              <PaintSplatter key={`s-${i}`} index={i} positive={splatters.positive} />
+              <GlassBubble key={`s-${i}`} index={i} positive={splatters.positive} />
             ))}
           </div>
         )}

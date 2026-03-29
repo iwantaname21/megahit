@@ -99,22 +99,30 @@ const useGameStore = create((set, get) => ({
   },
 
   doubleDown: () => {
-    const { positionSize, originalBet, doublesCount, balance } = get();
+    const { positionSize, originalBet, doublesCount, balance, currentPnl, realizedPnl, currentPrice } = get();
     if (balance < originalBet) return;
+    // Lock current PnL as realized, reset entry to current price so the
+    // doubled position only tracks future movement from here.
     set({
-      positionSize: positionSize * 2,
+      realizedPnl: realizedPnl + currentPnl,
+      entryPrice: currentPrice,
+      positionSize: positionSize + originalBet,
       doublesCount: doublesCount + 1,
       balance: balance - originalBet,
     });
   },
 
   closeHalf: () => {
-    const { positionSize, currentPnl, realizedPnl, balance } = get();
+    const { positionSize, currentPnl, realizedPnl, balance, currentPrice } = get();
+    if (positionSize <= 0) return;
     const halfPnl = currentPnl / 2;
     const halfPos = positionSize / 2;
+    // Lock half the PnL as realized, reset entry to current price so the
+    // remaining half only tracks future movement from here.
     set({
-      positionSize: halfPos,
       realizedPnl: realizedPnl + halfPnl,
+      entryPrice: currentPrice,
+      positionSize: halfPos,
       balance: balance + halfPos + halfPnl,
     });
   },

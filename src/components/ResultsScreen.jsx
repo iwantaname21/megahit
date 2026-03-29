@@ -17,7 +17,7 @@ function FlipTile({ label, value, revealed, delay }) {
     }
   }, [revealed, delay]);
 
-  const displayValue = label === 'LEVERAGE' ? `${value}x` : value;
+  const displayValue = label === 'LEVERAGE' ? `${value ?? ''}x` : (value ?? '');
   const textColor = label === 'SIDE' && value === 'LONG' ? '#6DD0A9' :
                     label === 'SIDE' && value === 'SHORT' ? '#FF8AA8' :
                     label === 'LEVERAGE' ? '#8befc6' : 'white';
@@ -96,16 +96,20 @@ function ResultChart({ pnlHistory }) {
 }
 
 export default function ResultsScreen() {
-  const {
-    asset, leverage, side, entryPrice, exitPrice,
-    balance, originalBet, doublesCount,
-    tradeHistory, spinAgain,
-  } = useGameStore();
+  const { balance, tradeHistory, spinAgain } = useGameStore();
 
   const [revealed, setRevealed] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
 
   const lastTrade = tradeHistory[0];
+  // Read everything from the saved trade so nulling store state during exit animation doesn't cause issues
+  const asset = lastTrade?.asset ?? 'BTC';
+  const leverage = lastTrade?.leverage ?? 1000;
+  const side = lastTrade?.side ?? 'LONG';
+  const entryPrice = lastTrade?.entryPrice;
+  const exitPrice = lastTrade?.exitPrice;
+  const originalBet = lastTrade?.originalBet ?? 0;
+  const doublesCount = lastTrade?.doublesCount ?? 0;
   const pnlHistory = lastTrade?.pnlHistory || [];
   const totalPnl = lastTrade?.pnl ?? 0;
   const pnlPct = lastTrade?.pnlPercent ?? 0;
