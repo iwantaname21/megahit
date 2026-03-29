@@ -284,8 +284,8 @@ export default function TradingScreen() {
         </div>
 
         {/* Action buttons — aligned with PnL card edges */}
-        <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3 w-full">
+          <div className="grid grid-cols-2 gap-3 w-full">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.9 }}

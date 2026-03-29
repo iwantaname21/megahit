@@ -232,7 +232,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Action buttons — aligned with results card edges */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 w-full">
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.9 }}
@@ -242,7 +242,7 @@ export default function ResultsScreen() {
           >
             SPIN AGAIN
           </motion.button>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 w-full">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.9 }}
