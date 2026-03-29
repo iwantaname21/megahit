@@ -6,7 +6,7 @@ import PnlCard from './PnlCard';
 import { formatCurrency } from '../lib/simulation';
 
 const TICK_MS = 150;
-const MILESTONE_STEP = 5;
+const MILESTONE_STEP = 3.5; // triggers more frequently (~30% easier to activate)
 
 // Liquid glass bubble — circular, transparent, frosted, with refraction highlights
 function GlassBubble({ index, positive }) {

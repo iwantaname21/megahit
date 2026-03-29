@@ -76,35 +76,37 @@ const useGameStore = create((set, get) => ({
   },
 
   tick: () => {
-    const { currentPrice, entryPrice, leverage, side, positionSize, pnlHistory, startTime } = get();
+    const { currentPrice, entryPrice, leverage, side, positionSize, pnlHistory, startTime, realizedPnl, originalBet } = get();
     if (!currentPrice || !entryPrice || !leverage) return;
 
     const newPrice = nextPrice(currentPrice, leverage);
-    let pnl = calcPnl({ currentPrice: newPrice, entryPrice, leverage, side, positionSize });
+    let unrealizedPnl = calcPnl({ currentPrice: newPrice, entryPrice, leverage, side, positionSize });
 
-    // Cap loss at position size (simulated liquidation — can't lose more than collateral)
-    pnl = Math.max(pnl, -positionSize);
+    // Cap loss at position size (simulated liquidation)
+    unrealizedPnl = Math.max(unrealizedPnl, -positionSize);
 
-    const pnlPct = positionSize > 0 ? (pnl / positionSize) * 100 : 0;
+    // Total PnL = realized (from doubles/half-closes) + unrealized
+    const totalPnl = realizedPnl + unrealizedPnl;
+    const pnlPct = originalBet > 0 ? (totalPnl / originalBet) * 100 : 0;
     const elapsed = (Date.now() - startTime) / 1000;
 
     set({
       currentPrice: newPrice,
-      currentPnl: pnl,
+      currentPnl: totalPnl,
       pnlPercent: pnlPct,
-      isWinning: pnl >= 0,
+      isWinning: totalPnl >= 0,
       elapsedTime: elapsed,
-      pnlHistory: [...pnlHistory, { time: parseFloat(elapsed.toFixed(1)), value: parseFloat(pnl.toFixed(2)) }],
+      pnlHistory: [...pnlHistory, { time: parseFloat(elapsed.toFixed(1)), value: parseFloat(totalPnl.toFixed(2)) }],
     });
   },
 
   doubleDown: () => {
     const { positionSize, originalBet, doublesCount, balance, currentPnl, realizedPnl, currentPrice } = get();
     if (balance < originalBet) return;
-    // Lock current PnL as realized, reset entry to current price so the
-    // doubled position only tracks future movement from here.
+    // currentPnl is total (realized + unrealized). Lock unrealized as realized.
+    const unrealizedPnl = currentPnl - realizedPnl;
     set({
-      realizedPnl: realizedPnl + currentPnl,
+      realizedPnl: realizedPnl + unrealizedPnl,
       entryPrice: currentPrice,
       positionSize: positionSize + originalBet,
       doublesCount: doublesCount + 1,
@@ -113,17 +115,18 @@ const useGameStore = create((set, get) => ({
   },
 
   closeHalf: () => {
-    const { positionSize, currentPnl, realizedPnl, balance, currentPrice } = get();
+    const { positionSize, currentPnl, realizedPnl, balance, currentPrice, entryPrice, leverage, side } = get();
     if (positionSize <= 0) return;
-    const halfPnl = currentPnl / 2;
+    // currentPnl is total (realized + unrealized). Compute unrealized portion only.
+    const unrealizedPnl = currentPnl - realizedPnl;
+    const halfUnrealized = unrealizedPnl / 2;
     const halfPos = positionSize / 2;
-    // Lock half the PnL as realized, reset entry to current price so the
-    // remaining half only tracks future movement from here.
+    // Lock half of unrealized as realized, reset entry to current price.
     set({
-      realizedPnl: realizedPnl + halfPnl,
+      realizedPnl: realizedPnl + halfUnrealized,
       entryPrice: currentPrice,
       positionSize: halfPos,
-      balance: balance + halfPos + halfPnl,
+      balance: balance + halfPos + halfUnrealized,
     });
   },
 
@@ -134,7 +137,9 @@ const useGameStore = create((set, get) => ({
       elapsedTime, pnlHistory, originalBet, doublesCount, tradeHistory,
     } = get();
 
-    const totalPnl = currentPnl + realizedPnl;
+    // currentPnl already includes realizedPnl
+    const totalPnl = currentPnl;
+    const unrealizedPnl = currentPnl - realizedPnl;
     const exitPx = currentPrice;
 
     const trade = {
@@ -153,7 +158,8 @@ const useGameStore = create((set, get) => ({
     };
 
     set({
-      balance: balance + positionSize + currentPnl,
+      // Add back remaining position collateral + unrealized PnL (realized already in balance)
+      balance: balance + positionSize + unrealizedPnl,
       exitPrice: exitPx,
       currentScreen: 'results',
       tradeHistory: [trade, ...tradeHistory],
