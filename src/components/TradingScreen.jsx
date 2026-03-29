@@ -1,0 +1,327 @@
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import useGameStore from '../store';
+import Header from './Header';
+import PnlCard from './PnlCard';
+import { formatCurrency } from '../lib/simulation';
+
+const TICK_MS = 150;
+const MILESTONE_STEP = 5;
+
+// Paint splatter blobs — large irregular shapes that splat onto the screen
+function PaintSplatter({ index, positive }) {
+  const greenColors = ['#6DD0A9', '#8befc6', '#50E3C2', '#A8E6CF', '#45B88D', '#6DD0A9'];
+  const redColors = ['#FF4D6A', '#FF8AA8', '#FF6B81', '#E84057', '#D43F5E', '#FF3355'];
+  const palette = positive ? greenColors : redColors;
+  const color = palette[index % palette.length];
+
+  const left = -10 + Math.random() * 120;
+  const top = Math.random() * 100;
+  const size = 50 + Math.random() * 140;
+  const delay = Math.random() * 0.4;
+  const borderRadius = `${30 + Math.random() * 40}% ${30 + Math.random() * 40}% ${30 + Math.random() * 40}% ${30 + Math.random() * 40}%`;
+  const rotation = Math.random() * 360;
+
+  return (
+    <motion.div
+      className="absolute pointer-events-none"
+      style={{
+        left: `${left}%`,
+        top: `${top}%`,
+        width: size,
+        height: size * (0.3 + Math.random() * 0.7),
+        background: `${color}`,
+        borderRadius,
+        transform: `rotate(${rotation}deg)`,
+        filter: `blur(${1 + Math.random() * 2}px)`,
+        opacity: 0.35,
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        border: `1px solid ${color}40`,
+        boxShadow: `0 0 20px ${color}30, inset 0 0 15px ${color}15`,
+      }}
+      initial={{ opacity: 0, scale: 0.15 }}
+      animate={{
+        opacity: [0, 0.4, 0.25, 0],
+        scale: [0.15, 1.1, 1.05, 0.95],
+      }}
+      transition={{
+        duration: 0.8,
+        delay: delay * 0.4,
+        ease: 'easeOut',
+      }}
+    />
+  );
+}
+
+// Radial gradient flash
+function MilestoneFlash({ positive }) {
+  const color = positive ? '109,208,169' : '255,77,106';
+  return (
+    <motion.div
+      className="fixed inset-0 pointer-events-none z-50"
+      style={{
+        background: `radial-gradient(circle at 50% 40%, rgba(${color},0.3), rgba(${color},0.1) 50%, transparent 80%)`,
+      }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.2, ease: 'easeOut' }}
+    />
+  );
+}
+
+// Pulsing border ring
+function MilestoneBorderPulse({ positive }) {
+  const color = positive ? 'rgba(109,208,169,0.5)' : 'rgba(255,77,106,0.5)';
+  return (
+    <motion.div
+      className="absolute inset-0 rounded-2xl pointer-events-none z-30"
+      style={{ border: `2px solid ${color}` }}
+      initial={{ opacity: 1, scale: 1 }}
+      animate={{ opacity: 0, scale: 1.03 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+    />
+  );
+}
+
+export default function TradingScreen() {
+  const {
+    balance, positionSize, realizedPnl,
+    currentPnl, pnlPercent, pnlHistory, isWinning, elapsedTime,
+    originalBet,
+    tick, doubleDown, closeHalf, closePosition,
+  } = useGameStore();
+
+  const intervalRef = useRef(null);
+  const lastUpMilestone = useRef(0);
+  const lastDownMilestone = useRef(0);
+
+  const [milestoneFlash, setMilestoneFlash] = useState(null);
+  const [milestoneFlashKey, setMilestoneFlashKey] = useState(0);
+  const [milestoneShake, setMilestoneShake] = useState(null);
+  const [splatters, setSplatters] = useState(null);
+  const [splattersKey, setSplattersKey] = useState(0);
+  const milestoneTimeoutRef = useRef(null);
+
+  const [cardFlash, setCardFlash] = useState(null);
+  const cardFlashTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(tick, TICK_MS);
+    return () => clearInterval(intervalRef.current);
+  }, [tick]);
+
+  useEffect(() => {
+    if (originalBet <= 0) return;
+
+    if (pnlPercent > 0) {
+      const upM = Math.floor(pnlPercent / MILESTONE_STEP);
+      if (upM > lastUpMilestone.current && upM >= 1) {
+        lastUpMilestone.current = upM;
+        fireMilestone(true);
+      }
+    }
+
+    if (pnlPercent < 0) {
+      const downM = Math.floor(Math.abs(pnlPercent) / MILESTONE_STEP);
+      if (downM > lastDownMilestone.current && downM >= 1) {
+        lastDownMilestone.current = downM;
+        fireMilestone(false);
+      }
+    }
+  }, [pnlPercent, originalBet]);
+
+  const fireMilestone = useCallback((positive) => {
+    setMilestoneFlash({ positive });
+    setMilestoneFlashKey((k) => k + 1);
+    setMilestoneShake(positive ? 'up' : 'down');
+    setSplatters({ positive });
+    setSplattersKey((k) => k + 1);
+
+    if (milestoneTimeoutRef.current) clearTimeout(milestoneTimeoutRef.current);
+    milestoneTimeoutRef.current = setTimeout(() => {
+      setMilestoneFlash(null);
+      setMilestoneShake(null);
+      setSplatters(null);
+    }, 1000);
+  }, []);
+
+  const triggerCardFlash = useCallback((c) => {
+    setCardFlash(c);
+    if (cardFlashTimeoutRef.current) clearTimeout(cardFlashTimeoutRef.current);
+    cardFlashTimeoutRef.current = setTimeout(() => setCardFlash(null), 600);
+  }, []);
+
+  const handleDouble = useCallback(() => {
+    doubleDown();
+    triggerCardFlash('green');
+  }, [doubleDown, triggerCardFlash]);
+
+  const handleHalf = useCallback(() => {
+    closeHalf();
+    triggerCardFlash('red');
+  }, [closeHalf, triggerCardFlash]);
+
+  const handleClose = useCallback(() => {
+    closePosition();
+  }, [closePosition]);
+
+  const canDouble = balance >= originalBet && originalBet > 0;
+  const color = isWinning ? '#6DD0A9' : '#FF8AA8';
+  const pnlStr = formatCurrency(currentPnl);
+
+  const shakeAnim = useMemo(() => {
+    if (milestoneShake === 'up')
+      return {
+        x: [0, -5, 6, -4, 5, -3, 3, -1, 0],
+        y: [0, -3, 2, -2, 1, 0],
+        transition: { duration: 0.5, ease: 'easeOut' },
+      };
+    if (milestoneShake === 'down')
+      return {
+        x: [0, -8, 9, -7, 7, -5, 4, -2, 0],
+        y: [0, 4, -3, 3, -2, 1, 0],
+        transition: { duration: 0.6, ease: 'easeOut' },
+      };
+    return {};
+  }, [milestoneShake]);
+
+  return (
+    <div className="flex flex-col min-h-screen relative">
+      {/* Milestone flash */}
+      <AnimatePresence>
+        {milestoneFlash && (
+          <MilestoneFlash
+            key={`mflash-${milestoneFlashKey}`}
+            positive={milestoneFlash.positive}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Paint splatters only — no film grain, no confetti */}
+      <AnimatePresence>
+        {splatters && (
+          <div key={`sp-${splattersKey}`} className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
+            {Array.from({ length: 14 }).map((_, i) => (
+              <PaintSplatter key={`s-${i}`} index={i} positive={splatters.positive} />
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+
+      <Header />
+
+      <motion.div
+        className="flex-1 px-5 pt-2 pb-8 overflow-y-auto"
+        animate={milestoneShake ? shakeAnim : {}}
+      >
+        {/* Locked tiles */}
+        <div className="grid grid-cols-3 gap-3 w-full mb-5">
+          {['ASSET', 'LEVERAGE', 'SIDE'].map((label) => (
+            <div key={label} className="flex flex-col items-center gap-2">
+              <span
+                className="font-bold uppercase text-[10px] tracking-widest"
+                style={{ color: 'rgba(19,19,20,0.5)' }}
+              >
+                {label}
+              </span>
+              <div
+                className="glass-tile three-d-tile w-full rounded-2xl flex items-center justify-center"
+                style={{ height: '72px' }}
+              >
+                <span
+                  className="material-symbols-outlined text-2xl"
+                  style={{ color: '#7EAAD4', fontVariationSettings: "'FILL' 1" }}
+                >
+                  lock
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* PnL Card */}
+        <div className="mb-4 relative">
+          <AnimatePresence>
+            {milestoneFlash && (
+              <MilestoneBorderPulse
+                key={`mbp-${milestoneFlashKey}`}
+                positive={milestoneFlash.positive}
+              />
+            )}
+          </AnimatePresence>
+          <PnlCard
+            currentPnl={currentPnl}
+            pnlPercent={pnlPercent}
+            pnlHistory={pnlHistory}
+            isWinning={isWinning}
+            elapsedTime={elapsedTime}
+            balance={balance}
+            positionSize={positionSize}
+            realizedPnl={realizedPnl}
+            cardFlash={cardFlash}
+          />
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3 h-14">
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              onClick={handleDouble}
+              disabled={!canDouble}
+              className="rounded-2xl flex items-center justify-center gap-2 font-extrabold text-sm tracking-widest uppercase text-white"
+              style={{
+                background: canDouble ? '#6DD0A9' : 'rgba(109,208,169,0.3)',
+                boxShadow: canDouble ? '0 4px 0 #4BA889' : 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                add
+              </span>
+              Double
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              onClick={handleHalf}
+              className="rounded-2xl flex items-center justify-center font-extrabold text-sm tracking-widest uppercase text-white"
+              style={{ background: '#FF8AA8', boxShadow: '0 4px 0 #D96E8A' }}
+            >
+              50%
+            </motion.button>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+            onClick={handleClose}
+            className="w-full h-16 rounded-2xl flex items-center justify-center gap-3 font-extrabold text-sm tracking-[0.15em] uppercase"
+            style={{
+              background: 'rgba(255,255,255,0.6)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(19,19,20,0.12)',
+              boxShadow: '0 8px 24px rgba(19,19,20,0.08)',
+            }}
+          >
+            <span className="text-[#131314]">✕ CLOSE</span>
+            <span style={{ color }}>{pnlStr}</span>
+          </motion.button>
+        </div>
+
+        <p
+          className="text-center mt-5 text-[11px] font-bold uppercase tracking-widest"
+          style={{ color: 'rgba(19,19,20,0.3)' }}
+        >
+          or screenshot to close.
+        </p>
+      </motion.div>
+    </div>
+  );
+}

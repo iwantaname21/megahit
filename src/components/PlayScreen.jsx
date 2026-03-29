@@ -1,0 +1,204 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import useGameStore from '../store';
+import Header from './Header';
+import TileTriplet from './TileTriplet';
+import HistoryView from './HistoryView';
+
+const springBounce = {
+  whileHover: { scale: 1.04 },
+  whileTap: { scale: 0.93 },
+  transition: { type: 'spring', stiffness: 400, damping: 15 },
+};
+
+export default function PlayScreen() {
+  const { balance, betAmount, setBetAmount, startSpin, activeTab, setActiveTab, tradeHistory } = useGameStore();
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+
+  const handleSlider = (e) => {
+    setBetAmount(parseFloat(e.target.value));
+  };
+
+  const sliderPct = balance > 0 ? (betAmount / balance) * 100 : 0;
+
+  const canSpin = betAmount > 0 && betAmount <= balance;
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header showNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <div className="flex-1 px-5 pb-8 overflow-y-auto flex flex-col">
+        {activeTab === 'play' ? (
+          <>
+            {/* Top spacer — larger to push card away from header toward center */}
+            <div className="flex-[2] min-h-[16px]" />
+
+            {/* Glass card with tiles + betting */}
+            <div
+              className="liquid-glass rounded-2xl p-6 border mb-5"
+              style={{ borderColor: 'rgba(255,255,255,0.3)' }}
+            >
+              {/* Subtle gradient accent */}
+              <div
+                className="absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl pointer-events-none"
+                style={{ background: 'rgba(109,208,169,0.06)' }}
+              />
+
+              {/* Tiles (placeholder) */}
+              <TileTriplet
+                mode="placeholder"
+                asset="BTC"
+                leverage={1000}
+                side="LONG"
+              />
+
+              {/* How it works */}
+              <div className="mt-4 mb-4 flex flex-col items-center">
+                <motion.button
+                  className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                  style={{ color: 'rgba(19,19,20,0.35)' }}
+                  onClick={() => setShowHowItWorks((v) => !v)}
+                  {...springBounce}
+                >
+                  How it works {showHowItWorks ? '↙' : '↗'}
+                </motion.button>
+                <AnimatePresence>
+                  {showHowItWorks && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden w-full"
+                    >
+                      <div
+                        className="mt-3 rounded-xl px-4 py-3 text-[11px] leading-relaxed font-medium space-y-1.5"
+                        style={{ background: 'rgba(19,19,20,0.04)', color: 'rgba(19,19,20,0.55)' }}
+                      >
+                        <p><span className="font-bold text-[#131314]/70">1.</span> Set your bet and press spin.</p>
+                        <p><span className="font-bold text-[#131314]/70">2.</span> A random asset, leverage, and side are locked — hidden from you.</p>
+                        <p><span className="font-bold text-[#131314]/70">3.</span> Watch the live PnL. Double down or cut 50% anytime.</p>
+                        <p><span className="font-bold text-[#131314]/70">4.</span> Close when you're ready. The trade is revealed.</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Balance + Bet row */}
+              <div
+                className="flex justify-between items-end pb-5 mb-6"
+                style={{ borderBottom: '1px solid rgba(19,19,20,0.06)' }}
+              >
+                <div className="flex flex-col">
+                  <span
+                    className="font-bold uppercase text-[10px] tracking-widest mb-1"
+                    style={{ color: 'rgba(19,19,20,0.5)' }}
+                  >
+                    BALANCE
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: '#6DD0A9' }}
+                    />
+                    <span className="text-[#131314] font-bold text-xl">
+                      ${balance.toFixed(0)}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right flex flex-col">
+                  <span
+                    className="font-bold uppercase text-[10px] tracking-widest mb-1"
+                    style={{ color: 'rgba(19,19,20,0.5)' }}
+                  >
+                    BET AMOUNT
+                  </span>
+                  <span className="text-[#131314] font-black text-4xl tracking-tight leading-none">
+                    ${betAmount.toFixed(0)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Slider */}
+              <div className="relative w-full flex items-center mb-6" style={{ height: '32px' }}>
+                <div
+                  className="absolute w-full rounded-full"
+                  style={{ height: '6px', background: 'rgba(19,19,20,0.08)' }}
+                />
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    height: '6px',
+                    width: `${sliderPct}%`,
+                    background: 'linear-gradient(90deg, #6DD0A9, #8befc6)',
+                  }}
+                />
+                <input
+                  type="range"
+                  min={1}
+                  max={balance}
+                  step={1}
+                  value={betAmount}
+                  onChange={handleSlider}
+                  className="bet-slider"
+                />
+              </div>
+
+              {/* Preset pills */}
+              <div className="flex gap-3">
+                {[10, 50, 100].map((preset) => (
+                  <motion.button
+                    key={preset}
+                    onClick={() => setBetAmount(Math.min(preset, balance))}
+                    className="flex-1 py-3 rounded-full font-bold text-sm"
+                    style={{
+                      border: '1px solid rgba(19,19,20,0.1)',
+                      background: betAmount === preset ? 'rgba(109,208,169,0.15)' : 'rgba(255,255,255,0.35)',
+                      backdropFilter: 'blur(8px)',
+                      color: betAmount === preset ? '#4BA889' : '#131314',
+                    }}
+                    {...springBounce}
+                  >
+                    ${preset}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Spin button */}
+            <div className="flex flex-col items-center pt-2 pb-6">
+              <motion.button
+                className="hit-orb w-24 h-24 rounded-full flex items-center justify-center text-white"
+                whileTap={{ scale: 0.88 }}
+                whileHover={{ scale: 1.04 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                onClick={startSpin}
+                disabled={!canSpin}
+                style={{ opacity: canSpin ? 1 : 0.4 }}
+              >
+                <span
+                  className="material-symbols-outlined text-4xl font-bold"
+                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 600" }}
+                >
+                  add
+                </span>
+              </motion.button>
+              <span
+                className="mt-5 font-bold uppercase text-[10px] tracking-[0.2em]"
+                style={{ color: 'rgba(19,19,20,0.35)' }}
+              >
+                Press ✚ to spin.
+              </span>
+            </div>
+
+            {/* Bottom spacer — smaller so card sits higher */}
+            <div className="flex-[3] min-h-[16px]" />
+          </>
+        ) : (
+          <HistoryView trades={tradeHistory} />
+        )}
+      </div>
+    </div>
+  );
+}
