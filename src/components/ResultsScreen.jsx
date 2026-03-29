@@ -33,11 +33,11 @@ function FlipTile({ label, value, revealed, delay }) {
       </span>
       <div
         className="w-full rounded-2xl flip-card"
-        style={{ height: '80px' }}
+        style={{ height: '68px' }}
       >
         <motion.div
           className="flip-card-inner w-full"
-          style={{ height: '80px' }}
+          style={{ height: '68px' }}
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         >
@@ -73,7 +73,7 @@ function ResultChart({ pnlHistory }) {
 
   return (
     <div className="relative">
-      <PnlChart data={pnlHistory} isWinning={isWin} height={140} showMarkers />
+      <PnlChart data={pnlHistory} isWinning={isWin} height={110} showMarkers />
     </div>
   );
 }
@@ -138,9 +138,9 @@ export default function ResultsScreen() {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 px-5 pt-2 pb-8 overflow-y-auto">
+      <div className="flex-1 px-5 pt-0 pb-8 overflow-y-auto">
         {/* Reveal tiles */}
-        <div className="grid grid-cols-3 gap-3 w-full mb-5">
+        <div className="grid grid-cols-3 gap-2 w-full mb-3">
           {[
             { label: 'ASSET', value: asset },
             { label: 'LEVERAGE', value: leverage },
@@ -158,13 +158,13 @@ export default function ResultsScreen() {
 
         {/* Results card */}
         <div
-          className="liquid-glass rounded-2xl p-5 mb-4"
+          className="liquid-glass rounded-2xl p-4 mb-3"
           style={{
             borderColor: isWin ? 'rgba(109,208,169,0.25)' : 'rgba(255,138,168,0.25)',
           }}
         >
           {/* Result badge — top, like status row in live */}
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-3">
             <motion.span
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -185,7 +185,7 @@ export default function ResultsScreen() {
           </div>
 
           {/* PnL amount — below chart */}
-          <div className="flex flex-col items-center mb-4">
+          <div className="flex flex-col items-center mb-3">
             <motion.h1
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
