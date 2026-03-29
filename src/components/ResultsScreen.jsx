@@ -54,11 +54,14 @@ function FlipTile({ label, value, revealed, delay }) {
           </div>
           {/* Back: revealed value */}
           <div
-            className="flip-card-back glass-tile"
+            className="flip-card-back"
             style={{
               borderRadius: '1rem',
-              background: 'linear-gradient(180deg, #2A2A2B 0%, #19191A 100%)',
-              boxShadow: `0 0 20px ${textColor}30`,
+              background: 'rgba(25, 25, 26, 0.55)',
+              backdropFilter: 'blur(40px) saturate(1.5)',
+              WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: `0 0 20px ${textColor}30, inset 0 1px 0 rgba(255,255,255,0.12)`,
             }}
           >
             <span className="font-black text-xl tracking-tight" style={{ color: textColor }}>
@@ -238,9 +241,8 @@ export default function ResultsScreen() {
               <span className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(19,19,20,0.4)' }}>
                 Entry → Exit
               </span>
-              <span className="text-[10px] font-extrabold text-[#131314] text-center leading-tight">
-                {entryPrice ? formatPrice(entryPrice, asset) : '—'}
-                <br />→ {exitPrice ? formatPrice(exitPrice, asset) : '—'}
+              <span className="text-[10px] font-extrabold text-[#131314] text-center whitespace-nowrap">
+                {entryPrice ? formatPrice(entryPrice, asset) : '—'} → {exitPrice ? formatPrice(exitPrice, asset) : '—'}
               </span>
             </div>
             <div className="flex flex-col items-center">

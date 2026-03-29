@@ -19,12 +19,12 @@ body {
    Inspired by Apple Liquid Glass
    ============================ */
 
-/* Main glass card — high transparency, strong blur, luminous inner highlight, refraction border */
+/* Main glass card — very transparent, strong blur, luminous inner highlight */
 .liquid-glass {
-  background: rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(40px) saturate(1.6) brightness(1.05);
-  -webkit-backdrop-filter: blur(40px) saturate(1.6) brightness(1.05);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(40px) saturate(1.6) brightness(1.08);
+  -webkit-backdrop-filter: blur(40px) saturate(1.6) brightness(1.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
     inset 0 -1px 0 0 rgba(255, 255, 255, 0.1),
@@ -32,24 +32,24 @@ body {
     0 1px 3px rgba(19, 19, 20, 0.06);
 }
 
-/* Dark tile — glass-tinted dark surface */
+/* Dark tile — black liquid glass */
 .glass-tile {
-  background: linear-gradient(180deg, rgba(42, 42, 43, 0.85) 0%, rgba(25, 25, 26, 0.92) 100%);
-  backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(25, 25, 26, 0.55);
+  backdrop-filter: blur(40px) saturate(1.5) brightness(0.85);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5) brightness(0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.03);
 }
 
 /* 3D tile shadow — refined for glass */
 .three-d-tile {
   box-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.35),
-    0 6px 16px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 3px 0 rgba(0, 0, 0, 0.2),
+    0 6px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 /* Spin button — glass orb with refraction highlights */
