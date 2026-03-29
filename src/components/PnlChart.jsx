@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
 const TICK_MS = 100;
+const SPARKLE_STEP = 3.5;
 
 export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null, pnlPercent = 0 }) {
   const canvasRef = useRef(null);
@@ -14,13 +15,13 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   const lastW = useRef(0);
   const lastH = useRef(0);
 
-  // Per-point interpolation state: each point has {fromX, toX, fromY, toY, tickTime}
-  const pointsRef = useRef([]);
-  const lastDataLen = useRef(0);
-  const tickTimeRef = useRef(0);
+  // Per-point interpolation: each point stores displayed {x, y} that lerps to target
+  const displayedPts = useRef([]);
+  const tickTime = useRef(0);
+  const prevDataLen = useRef(0);
 
-  // Domain state
-  const domainRef = useRef({ dispMin: null, dispMax: null });
+  // Domain chase
+  const domDisp = useRef({ min: null, max: null });
 
   // Sparkle tracking
   const lastSparkleAt = useRef(0);
@@ -30,10 +31,9 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   markersRef.current = showMarkers;
 
   // Sparkle logic
-  const SPARKLE_STEP = 3.5;
-  const sdiff = pnlPercent - lastSparkleAt.current;
-  if (Math.abs(sdiff) >= SPARKLE_STEP && data && data.length > 2) {
-    const positive = sdiff > 0;
+  const diff = pnlPercent - lastSparkleAt.current;
+  if (Math.abs(diff) >= SPARKLE_STEP && data && data.length > 2) {
+    const positive = diff > 0;
     lastSparkleAt.current = pnlPercent;
     for (let i = 0; i < 14; i++) {
       sparklesRef.current.push({
@@ -52,8 +52,6 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-
-    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
     const draw = (now) => {
       const d = dataRef.current;
@@ -98,104 +96,87 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const chartW = w - margin * 2;
       const n = pts.length;
 
-      // Compute target positions for all points
-      const targetXs = pts.map((_, i) => n <= 1 ? margin + chartW / 2 : margin + (i / (n - 1)) * chartW);
-
-      // Detect new tick (data length changed)
-      const isNewTick = d.length !== lastDataLen.current;
-      if (isNewTick) {
-        tickTimeRef.current = now;
-        lastDataLen.current = d.length;
-
-        // Update per-point lerp state
-        const oldPts = pointsRef.current;
-        const newPts = [];
-
-        for (let i = 0; i < n; i++) {
-          if (markers) {
-            // Results screen: no interpolation
-            newPts.push({ fromX: targetXs[i], fromY: pts[i].value, toX: targetXs[i], toY: pts[i].value });
-          } else if (i < n - 1 && i < oldPts.length) {
-            // Existing point: lerp from current displayed position to new target
-            const old = oldPts[i];
-            const elapsed = now - (tickTimeRef.current - TICK_MS); // time since last tick
-            const t = Math.min(elapsed / TICK_MS, 1);
-            const e = easeOut(t);
-            const currX = old.fromX + (old.toX - old.fromX) * e;
-            const currY = old.fromY + (old.toY - old.fromY) * e;
-            newPts.push({ fromX: currX, fromY: currY, toX: targetXs[i], toY: pts[i].value });
-          } else if (i === n - 1) {
-            // New last point: start from previous last point's position
-            const prevLast = oldPts.length > 0 ? oldPts[oldPts.length - 1] : null;
-            if (prevLast) {
-              const elapsed = now - (tickTimeRef.current - TICK_MS);
-              const t = Math.min(elapsed / TICK_MS, 1);
-              const e = easeOut(t);
-              const currX = prevLast.fromX + (prevLast.toX - prevLast.fromX) * e;
-              const currY = prevLast.fromY + (prevLast.toY - prevLast.fromY) * e;
-              newPts.push({ fromX: currX, fromY: currY, toX: targetXs[i], toY: pts[i].value });
-            } else {
-              newPts.push({ fromX: targetXs[i], fromY: pts[i].value, toX: targetXs[i], toY: pts[i].value });
-            }
-          } else {
-            // Brand new point with no prior state
-            newPts.push({ fromX: targetXs[i], fromY: pts[i].value, toX: targetXs[i], toY: pts[i].value });
-          }
-        }
-        pointsRef.current = newPts;
-      }
-
-      // Interpolate all points
-      const elapsed = now - tickTimeRef.current;
-      const t = Math.min(elapsed / TICK_MS, 1);
-      const e = easeOut(t);
-
-      const ptsState = pointsRef.current;
-      // If pointsRef is empty or mismatched (first frames), use raw targets
-      const useRaw = ptsState.length !== n;
-
-      // Compute interpolated values for domain calculation
-      const interpVals = pts.map((p, i) => {
-        if (markers || useRaw) return p.value;
-        const s = ptsState[i];
-        return s.fromY + (s.toY - s.fromY) * e;
-      });
-
-      // Domain
-      const minV = Math.min(...interpVals);
-      const maxV = Math.max(...interpVals);
+      // Target domain
+      const vals = pts.map((p) => p.value);
+      const minV = Math.min(...vals);
+      const maxV = Math.max(...vals);
       const absMax = Math.max(Math.abs(minV), Math.abs(maxV));
       const pad = absMax * 0.25 || 5;
       const targetDomMin = Math.min(minV, 0) - pad;
       const targetDomMax = Math.max(maxV, 0) + pad;
 
-      const dom = domainRef.current;
-      if (dom.dispMin === null) {
-        dom.dispMin = targetDomMin;
-        dom.dispMax = targetDomMax;
+      // Domain chase — expand instant, shrink smooth
+      const dom = domDisp.current;
+      if (dom.min === null) {
+        dom.min = targetDomMin;
+        dom.max = targetDomMax;
       } else {
-        const chase = 0.08;
-        dom.dispMin = targetDomMin < dom.dispMin ? targetDomMin : dom.dispMin + (targetDomMin - dom.dispMin) * chase;
-        dom.dispMax = targetDomMax > dom.dispMax ? targetDomMax : dom.dispMax + (targetDomMax - dom.dispMax) * chase;
+        const chase = 0.1;
+        dom.min = targetDomMin < dom.min ? targetDomMin : dom.min + (targetDomMin - dom.min) * chase;
+        dom.max = targetDomMax > dom.max ? targetDomMax : dom.max + (targetDomMax - dom.max) * chase;
       }
-      const domMin = dom.dispMin;
-      const domMax = dom.dispMax;
 
-      const toY = (v) => {
-        const y = h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
+      const toYVal = (v) => {
+        const y = h - 4 - ((v - dom.min) / (dom.max - dom.min)) * (h - 8);
         return Math.max(4, Math.min(h - 4, y));
       };
 
-      // Compute final display positions
-      const xArr = pts.map((_, i) => {
-        if (markers || useRaw) return targetXs[i];
-        const s = ptsState[i];
-        return s.fromX + (s.toX - s.fromX) * e;
-      });
-      const yArr = interpVals.map(v => toY(v));
+      // Target pixel positions for every point
+      const targetPts = pts.map((p, i) => ({
+        x: n <= 1 ? margin + chartW / 2 : margin + (i / (n - 1)) * chartW,
+        y: toYVal(p.value),
+      }));
+
+      // Detect new tick
+      const newTick = d.length !== prevDataLen.current;
+      if (newTick) {
+        tickTime.current = now;
+        prevDataLen.current = d.length;
+      }
+
+      // Easing progress for this frame
+      const elapsed = now - tickTime.current;
+      const t = Math.min(elapsed / TICK_MS, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      // Update displayed positions — lerp ALL points toward their targets
+      const dp = displayedPts.current;
+
+      if (markers) {
+        displayedPts.current = targetPts;
+      } else if (dp.length === 0) {
+        displayedPts.current = targetPts.map(p => ({ ...p }));
+      } else {
+        const newDp = [];
+        for (let i = 0; i < n; i++) {
+          const tgt = targetPts[i];
+          if (i < dp.length) {
+            // Existing point — lerp x and y
+            newDp.push({
+              x: dp[i].x + (tgt.x - dp[i].x) * eased,
+              y: dp[i].y + (tgt.y - dp[i].y) * eased,
+            });
+          } else if (i === n - 1 && dp.length === n - 1) {
+            // New last point — emerge from previous last
+            const prev = dp[dp.length - 1];
+            newDp.push({
+              x: prev.x + (tgt.x - prev.x) * eased,
+              y: prev.y + (tgt.y - prev.y) * eased,
+            });
+          } else {
+            newDp.push({ ...tgt });
+          }
+        }
+        displayedPts.current = newDp.slice(0, n);
+      }
+
+      const rp = displayedPts.current;
+      const lastIdx = rp.length - 1;
+      const lastX = rp[lastIdx].x;
+      const lastY = rp[lastIdx].y;
 
       // Zero line
-      const zeroY = toY(0);
+      const zeroY = toYVal(0);
       ctx.beginPath();
       ctx.setLineDash([4, 4]);
       ctx.strokeStyle = 'rgba(19,19,20,0.12)';
@@ -208,31 +189,35 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const color = winning ? '#6DD0A9' : '#FF8AA8';
       const rgb = winning ? '109,208,169' : '255,138,168';
 
-      // --- Draw on offscreen canvas ---
+      // --- Offscreen canvas ---
       const off = offRef.current;
       const oc = off.getContext('2d');
       oc.globalCompositeOperation = 'source-over';
       oc.setTransform(dpr, 0, 0, dpr, 0, 0);
       oc.clearRect(0, 0, w, h);
 
+      // Bezier path from interpolated positions
       oc.beginPath();
-      oc.moveTo(xArr[0], yArr[0]);
-      if (n === 2) {
-        oc.lineTo(xArr[1], yArr[1]);
+      oc.moveTo(rp[0].x, rp[0].y);
+      if (rp.length === 2) {
+        oc.lineTo(rp[1].x, rp[1].y);
       } else {
-        for (let i = 0; i < n - 1; i++) {
-          const x0 = xArr[i], y0 = yArr[i];
-          const x1 = xArr[i + 1], y1 = yArr[i + 1];
+        for (let i = 0; i < rp.length - 1; i++) {
+          const x0 = rp[i].x, y0 = rp[i].y;
+          const x1 = rp[i + 1].x, y1 = rp[i + 1].y;
           const tension = 0.3;
           let dx0 = 0, dy0 = 0, dx1 = 0, dy1 = 0;
-          if (i > 0) { dx0 = (xArr[i+1] - xArr[i-1]) * tension; dy0 = (yArr[i+1] - yArr[i-1]) * tension; }
-          if (i + 2 < n) { dx1 = (xArr[i+2] - xArr[i]) * tension; dy1 = (yArr[i+2] - yArr[i]) * tension; }
+          if (i > 0) {
+            dx0 = (rp[i + 1].x - rp[i - 1].x) * tension;
+            dy0 = (rp[i + 1].y - rp[i - 1].y) * tension;
+          }
+          if (i + 2 < rp.length) {
+            dx1 = (rp[i + 2].x - rp[i].x) * tension;
+            dy1 = (rp[i + 2].y - rp[i].y) * tension;
+          }
           oc.bezierCurveTo(x0 + dx0, y0 + dy0, x1 - dx1, y1 - dy1, x1, y1);
         }
       }
-
-      const lastX = xArr[n - 1];
-      const lastY = yArr[n - 1];
 
       oc.strokeStyle = color;
       oc.lineWidth = 2.5;
@@ -240,8 +225,9 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       oc.lineCap = 'round';
       oc.stroke();
 
+      // Fill
       oc.lineTo(lastX, h);
-      oc.lineTo(xArr[0], h);
+      oc.lineTo(rp[0].x, h);
       oc.closePath();
       const vertGrad = oc.createLinearGradient(0, 0, 0, h);
       vertGrad.addColorStop(0, `rgba(${rgb}, 0.38)`);
@@ -267,41 +253,6 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
 
       ctx.drawImage(off, 0, 0, w * dpr, h * dpr, 0, 0, w, h);
 
-      // Right-side percentage axis (live mode only)
-      if (!markers && n > 2 && domMax !== domMin) {
-        ctx.font = "600 9px 'Inter', sans-serif";
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-
-        // Compute $ to % conversion from current data
-        const lastVal = interpVals[interpVals.length - 1];
-        const pctPerDollar = (lastVal !== 0 && pnlPercent !== 0) ? pnlPercent / lastVal : 1;
-
-        // Choose nice tick intervals based on range
-        const rangePct = (domMax - domMin) * Math.abs(pctPerDollar);
-        let step;
-        if (rangePct > 100) step = 25;
-        else if (rangePct > 40) step = 10;
-        else if (rangePct > 15) step = 5;
-        else if (rangePct > 5) step = 2;
-        else step = 1;
-
-        const axisX = w - 4;
-        const minPct = Math.ceil((domMin * pctPerDollar) / step) * step;
-        const maxPct = Math.floor((domMax * pctPerDollar) / step) * step;
-
-        for (let pct = minPct; pct <= maxPct; pct += step) {
-          const dollarVal = pctPerDollar !== 0 ? pct / pctPerDollar : 0;
-          const y = toY(dollarVal);
-          if (y < 10 || y > h - 10) continue;
-
-          const label = (pct >= 0 ? '+' : '') + pct + '%';
-          const labelColor = pct > 0 ? 'rgba(109,208,169,0.5)' : pct < 0 ? 'rgba(255,138,168,0.5)' : 'rgba(19,19,20,0.3)';
-          ctx.fillStyle = labelColor;
-          ctx.fillText(label, axisX, y);
-        }
-      }
-
       // Exit dot (results)
       if (markers) {
         ctx.beginPath();
@@ -314,7 +265,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       }
 
       // Holographic dot (live)
-      if (!markers && n > 2) {
+      if (!markers && rp.length > 2) {
         pulseT.current += 0.03;
         const pt = pulseT.current;
         const pulse = Math.sin(pt * 1.7);
