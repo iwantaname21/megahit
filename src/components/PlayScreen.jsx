@@ -145,25 +145,41 @@ export default function PlayScreen() {
                 />
               </div>
 
-              {/* Preset pills */}
-              <div className="flex gap-3">
-                {[10, 50, 100].map((preset) => (
-                  <motion.button
-                    key={preset}
-                    onClick={() => setBetAmount(Math.min(preset, balance))}
-                    className="flex-1 py-3 rounded-full font-bold text-sm"
-                    style={{
-                      border: '1px solid rgba(19,19,20,0.1)',
-                      background: betAmount === preset ? 'rgba(109,208,169,0.15)' : 'rgba(255,255,255,0.35)',
-                      backdropFilter: 'blur(8px)',
-                      color: betAmount === preset ? '#4BA889' : '#131314',
-                    }}
-                    {...springBounce}
-                  >
-                    ${preset}
-                  </motion.button>
-                ))}
-              </div>
+              {/* Preset pills / custom indicator */}
+              {[10, 50, 100].includes(Math.round(betAmount)) ? (
+                <div className="flex gap-3">
+                  {[10, 50, 100].map((preset) => (
+                    <motion.button
+                      key={preset}
+                      onClick={() => setBetAmount(Math.min(preset, balance))}
+                      className="flex-1 py-3 rounded-full font-bold text-sm"
+                      style={{
+                        border: '1px solid rgba(19,19,20,0.1)',
+                        background: Math.round(betAmount) === preset ? 'rgba(109,208,169,0.15)' : 'rgba(255,255,255,0.35)',
+                        backdropFilter: 'blur(8px)',
+                        color: Math.round(betAmount) === preset ? '#4BA889' : '#131314',
+                      }}
+                      {...springBounce}
+                    >
+                      ${preset}
+                    </motion.button>
+                  ))}
+                </div>
+              ) : (
+                <motion.div
+                  className="w-full py-3 rounded-full font-bold text-sm text-center"
+                  style={{
+                    border: '1px solid rgba(109,208,169,0.2)',
+                    background: 'rgba(109,208,169,0.1)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#4BA889',
+                  }}
+                  {...springBounce}
+                  onClick={() => {}}
+                >
+                  Custom amount — ${Math.round(betAmount)}
+                </motion.div>
+              )}
             </div>
 
             {/* Spin button */}
@@ -171,8 +187,7 @@ export default function PlayScreen() {
               <motion.button
                 className="hit-orb w-24 h-24 rounded-full flex items-center justify-center text-white"
                 whileTap={{ scale: 0.88 }}
-                whileHover={{ scale: 1.04 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                 onClick={startSpin}
                 disabled={!canSpin}
                 style={{ opacity: canSpin ? 1 : 0.4 }}
