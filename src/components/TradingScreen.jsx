@@ -37,14 +37,14 @@ function GlassBubble({ index, positive }) {
           0 0 1px rgba(255,255,255,0.3)
         `,
       }}
-      initial={{ opacity: 0, scale: 0.2 }}
+      initial={{ opacity: 0, scale: 0.3 }}
       animate={{
-        opacity: [0, 0.6, 0.4, 0],
-        scale: [0.2, 1.05, 1, 0.9],
+        opacity: [0, 0.35, 0.2, 0],
+        scale: [0.3, 1.02, 0.98, 0.9],
       }}
       transition={{
-        duration: 0.9,
-        delay,
+        duration: 1.4,
+        delay: delay * 1.5,
         ease: 'easeOut',
       }}
     />
@@ -58,12 +58,12 @@ function MilestoneFlash({ positive }) {
     <motion.div
       className="fixed inset-0 pointer-events-none z-50"
       style={{
-        background: `radial-gradient(circle at 50% 40%, rgba(${color},0.3), rgba(${color},0.1) 50%, transparent 80%)`,
+        background: `radial-gradient(circle at 50% 40%, rgba(${color},0.15), rgba(${color},0.05) 50%, transparent 80%)`,
       }}
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1.2, ease: 'easeOut' }}
+      transition={{ duration: 1.8, ease: 'easeOut' }}
     />
   );
 }
@@ -172,15 +172,15 @@ export default function TradingScreen() {
   const shakeAnim = useMemo(() => {
     if (milestoneShake === 'up')
       return {
-        x: [0, -5, 6, -4, 5, -3, 3, -1, 0],
-        y: [0, -3, 2, -2, 1, 0],
-        transition: { duration: 0.5, ease: 'easeOut' },
+        x: [0, -2, 2.5, -1.5, 1, 0],
+        y: [0, -1.5, 1, -0.5, 0],
+        transition: { duration: 0.6, ease: 'easeOut' },
       };
     if (milestoneShake === 'down')
       return {
-        x: [0, -8, 9, -7, 7, -5, 4, -2, 0],
-        y: [0, 4, -3, 3, -2, 1, 0],
-        transition: { duration: 0.6, ease: 'easeOut' },
+        x: [0, -3, 3.5, -2, 2, -1, 0],
+        y: [0, 2, -1, 0.5, 0],
+        transition: { duration: 0.7, ease: 'easeOut' },
       };
     return {};
   }, [milestoneShake]);

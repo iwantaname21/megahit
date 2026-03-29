@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import useGameStore from './store';
+import OceanBackground from './components/OceanBackground';
 import PlayScreen from './components/PlayScreen';
 import LockingScreen from './components/LockingScreen';
 import TradingScreen from './components/TradingScreen';
@@ -16,9 +17,9 @@ export default function App() {
   const currentScreen = useGameStore((s) => s.currentScreen);
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center" style={{ backgroundColor: '#ECE8E8' }}>
-      {/* Ambient glow */}
-      <div className="fixed inset-0 ambient-glow pointer-events-none" />
+    <div className="min-h-screen w-full flex flex-col items-center" style={{ backgroundColor: '#E8E4E0' }}>
+      {/* Animated ocean background */}
+      <OceanBackground />
 
       {/* Centered phone-width container */}
       <div className="relative w-full max-w-[430px] min-h-screen flex flex-col">
