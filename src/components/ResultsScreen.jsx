@@ -231,7 +231,7 @@ export default function ResultsScreen() {
           </div>
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons — aligned with results card edges */}
         <div className="flex flex-col gap-3">
           <motion.button
             whileHover={{ scale: 1.03 }}
@@ -242,13 +242,13 @@ export default function ResultsScreen() {
           >
             SPIN AGAIN
           </motion.button>
-          <div className="grid grid-cols-2 gap-3 h-12">
+          <div className="grid grid-cols-2 gap-3">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={() => { hapticLight(); spinAgain(); }}
-              className="glass-btn rounded-2xl font-extrabold text-sm tracking-widest uppercase text-[#131314]"
+              className="glass-btn h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase text-[#131314]"
             >
               HOME
             </motion.button>
@@ -257,7 +257,7 @@ export default function ResultsScreen() {
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={() => { hapticLight(); handleShare(); }}
-              className="glass-btn rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-2 text-[#131314]"
+              className="glass-btn h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-2 text-[#131314]"
             >
               <span className="material-symbols-outlined text-base">share</span>
               SHARE

@@ -283,16 +283,16 @@ export default function TradingScreen() {
           />
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons — aligned with PnL card edges */}
         <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3 h-14">
+          <div className="grid grid-cols-2 gap-3">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={handleDouble}
               disabled={!canDouble}
-              className={`glass-btn-green rounded-2xl flex items-center justify-center gap-2 font-extrabold text-sm tracking-widest uppercase text-white ${!canDouble ? 'opacity-40' : ''}`}
+              className={`glass-btn-green h-14 rounded-2xl flex items-center justify-center gap-2 font-extrabold text-sm tracking-widest uppercase text-white ${!canDouble ? 'opacity-40' : ''}`}
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
                 add
@@ -304,7 +304,7 @@ export default function TradingScreen() {
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={handleHalf}
-              className="glass-btn-red rounded-2xl flex items-center justify-center font-extrabold text-sm tracking-widest uppercase text-white"
+              className="glass-btn-red h-14 rounded-2xl flex items-center justify-center font-extrabold text-sm tracking-widest uppercase text-white"
             >
               50%
             </motion.button>
@@ -315,7 +315,7 @@ export default function TradingScreen() {
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
             onClick={handleClose}
-            className="glass-btn-close w-full h-16 rounded-2xl flex items-center justify-center gap-3 font-extrabold text-sm tracking-[0.15em] uppercase"
+            className="glass-btn-close w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-extrabold text-sm tracking-[0.15em] uppercase"
           >
             <span className="text-[#131314]">✕ CLOSE</span>
             <span style={{ color }}>{pnlStr}</span>
