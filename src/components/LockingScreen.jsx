@@ -82,7 +82,7 @@ function SpinReel({ label, strip, speed, isLocked }) {
           <motion.div
             className="absolute flex items-center justify-center z-10 rounded-2xl"
             style={{
-              background: 'rgba(25, 25, 26, 0.6)',
+              background: 'rgba(25, 25, 26, 0.82)',
               backdropFilter: 'blur(40px) saturate(1.5) brightness(0.85)',
               WebkitBackdropFilter: 'blur(40px) saturate(1.5) brightness(0.85)',
               border: '1px solid rgba(255,255,255,0.1)',

@@ -57,7 +57,7 @@ function FlipTile({ label, value, revealed, delay }) {
             className="flip-card-back"
             style={{
               borderRadius: '1rem',
-              background: 'rgba(25, 25, 26, 0.55)',
+              background: 'rgba(25, 25, 26, 0.82)',
               backdropFilter: 'blur(40px) saturate(1.5)',
               WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
               border: '1px solid rgba(255,255,255,0.12)',

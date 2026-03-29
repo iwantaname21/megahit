@@ -48,7 +48,7 @@ function Tile({ label, value, mode, flipped = false }) {
                        label === 'SIDE' && value === 'SHORT' ? '#FF8AA8' : 'white',
               }}
             >
-              {label === 'LEVERAGE' ? `${value}x` : value}
+              {label === 'LEVERAGE' ? `${value ?? ''}x` : (value ?? '')}
             </motion.span>
           )}
           {mode === 'placeholder' && (
@@ -59,7 +59,7 @@ function Tile({ label, value, mode, flipped = false }) {
                 color: label === 'SIDE' ? '#6DD0A9' : 'white',
               }}
             >
-              {label === 'LEVERAGE' ? `${value}x` : value}
+              {label === 'LEVERAGE' ? `${value ?? 1000}x` : (value ?? '—')}
             </motion.span>
           )}
           {mode === 'revealed' && !flipped && (
@@ -84,7 +84,7 @@ function Tile({ label, value, mode, flipped = false }) {
                        label === 'LEVERAGE' ? '#8befc6' : 'white',
               }}
             >
-              {label === 'LEVERAGE' ? `${value}x` : value}
+              {label === 'LEVERAGE' ? `${value ?? ''}x` : (value ?? '')}
             </motion.span>
           )}
         </AnimatePresence>
