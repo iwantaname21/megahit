@@ -5,7 +5,7 @@ import Header from './Header';
 import PnlCard from './PnlCard';
 import { formatCurrency } from '../lib/simulation';
 
-const TICK_MS = 150;
+const TICK_MS = 50; // ~20 ticks/sec for smooth chart line
 const MILESTONE_STEP = 3.5; // triggers more frequently (~30% easier to activate)
 
 // Liquid glass bubble — circular, transparent, frosted, with refraction highlights

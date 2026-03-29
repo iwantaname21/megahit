@@ -1,32 +1,23 @@
 import React, { useRef, useEffect } from 'react';
 
-// Pure canvas chart — 60fps smooth rendering with interpolation between data points.
-// The chart lerps the last point's position toward its target so the line extends
-// smoothly rather than jumping tick-to-tick.
-
 export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null }) {
   const canvasRef = useRef(null);
   const dataRef = useRef(data);
   const winRef = useRef(isWinning);
-  const milestoneRef = useRef(milestone);
-  const sparklesRef = useRef([]); // active sparkle particles
   const markersRef = useRef(showMarkers);
+  const milestoneRef = useRef(milestone);
+  const sparklesRef = useRef([]);
   const animRef = useRef(null);
   const pulseT = useRef(0);
-
-  // Smooth interpolation: track display value + velocity for momentum-based animation
-  const interpVal = useRef(null);
-  const interpVel = useRef(0);
-  const lastDataLen = useRef(0);
-  const lastTickTime = useRef(0);
+  const offRef = useRef(null); // cached offscreen canvas
+  const sizeRef = useRef({ w: 0, h: 0 }); // cached dimensions
 
   dataRef.current = data;
   winRef.current = isWinning;
   markersRef.current = showMarkers;
 
-  // Spawn sparkles when milestone changes to non-null
+  // Spawn sparkles on milestone
   if (milestone !== null && milestone !== milestoneRef.current) {
-    const positive = milestone;
     for (let i = 0; i < 12; i++) {
       sparklesRef.current.push({
         angle: (Math.PI * 2 * i) / 12 + Math.random() * 0.3,
@@ -34,7 +25,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         life: 1,
         maxLife: 0.6 + Math.random() * 0.5,
         size: 1.5 + Math.random() * 2.5,
-        positive,
+        positive: milestone,
       });
     }
   }
@@ -46,21 +37,26 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    let prevFrameTime = 0;
-
-    const draw = (now) => {
-      const frameDt = prevFrameTime ? Math.min((now - prevFrameTime) / 1000, 0.05) : 0.016;
-      prevFrameTime = now;
-
+    const draw = () => {
       const d = dataRef.current;
       const winning = winRef.current;
       const markers = markersRef.current;
 
       const rect = canvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+
+      // Only resize canvas when dimensions actually change (avoids GPU texture reset)
+      if (sizeRef.current.w !== w || sizeRef.current.h !== h) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        sizeRef.current = { w, h };
+        // Also resize cached offscreen canvas
+        if (!offRef.current) offRef.current = document.createElement('canvas');
+        offRef.current.width = w * dpr;
+        offRef.current.height = h * dpr;
+      }
+
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
@@ -80,45 +76,8 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         pts = d.filter((_, i) => i % step === 0 || i === d.length - 1);
       }
 
-      // Spring-damper interpolation for the trailing edge value
-      // This creates smooth, continuous motion between data ticks
-      const targetVal = pts[pts.length - 1].value;
-      if (interpVal.current === null || d.length <= 2) {
-        interpVal.current = targetVal;
-        interpVel.current = 0;
-      } else {
-        // When new data arrives, estimate velocity from the last two real points
-        if (d.length !== lastDataLen.current && pts.length >= 2) {
-          const prev = pts[pts.length - 2].value;
-          const curr = pts[pts.length - 1].value;
-          // Blend new velocity with existing for smoother transitions
-          interpVel.current = interpVel.current * 0.3 + (curr - prev) * 0.7;
-        }
-
-        // Spring physics: chase target with damped spring
-        const stiffness = 12; // how fast it pulls toward target
-        const damping = 6;    // how much velocity is dampened
-        const diff = targetVal - interpVal.current;
-        const springForce = diff * stiffness;
-        interpVel.current += (springForce - interpVel.current * damping) * frameDt;
-        interpVal.current += interpVel.current * frameDt;
-
-        // Snap when very close
-        if (Math.abs(diff) < 0.005 && Math.abs(interpVel.current) < 0.01) {
-          interpVal.current = targetVal;
-          interpVel.current = 0;
-        }
-      }
-      lastDataLen.current = d.length;
-
-      // Build display array: all real points except last, plus smoothed trailing value
-      // Also add a virtual "leading" point slightly ahead for continuous feel
-      const displayPts = pts.map((p, i) =>
-        i === pts.length - 1 ? { ...p, value: interpVal.current } : p
-      );
-
       // Domain
-      const vals = displayPts.map((p) => p.value);
+      const vals = pts.map((p) => p.value);
       const minV = Math.min(...vals);
       const maxV = Math.max(...vals);
       const absMax = Math.max(Math.abs(minV), Math.abs(maxV));
@@ -127,7 +86,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMax = Math.max(maxV, 0) + pad;
 
       const margin = 25;
-      const toX = (i) => (i / (displayPts.length - 1)) * (w - margin * 2) + margin;
+      const toX = (i) => (i / (pts.length - 1)) * (w - margin * 2) + margin;
       const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
 
       // Zero line
@@ -141,49 +100,46 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Draw line + fill onto offscreen canvas, then composite with edge fade
       const color = winning ? '#6DD0A9' : '#FF8AA8';
       const rgb = winning ? '109,208,169' : '255,138,168';
 
-      const xArr = displayPts.map((_, i) => toX(i));
-      const yArr = displayPts.map((p) => toY(p.value));
+      const xArr = pts.map((_, i) => toX(i));
+      const yArr = pts.map((p) => toY(p.value));
 
-      // --- Offscreen canvas for line + fill ---
-      const off = document.createElement('canvas');
-      off.width = w * dpr;
-      off.height = h * dpr;
+      // --- Draw line + fill on cached offscreen canvas ---
+      const off = offRef.current;
       const oc = off.getContext('2d');
       oc.setTransform(dpr, 0, 0, dpr, 0, 0);
+      oc.clearRect(0, 0, w, h);
 
-      // Build path
+      // Build cubic bezier path
       oc.beginPath();
       oc.moveTo(xArr[0], yArr[0]);
-      if (displayPts.length === 2) {
+      if (pts.length === 2) {
         oc.lineTo(xArr[1], yArr[1]);
       } else {
-        for (let i = 0; i < displayPts.length - 1; i++) {
+        for (let i = 0; i < pts.length - 1; i++) {
           const x0 = xArr[i], y0 = yArr[i];
           const x1 = xArr[i + 1], y1 = yArr[i + 1];
           const tension = 0.3;
           let dx0 = 0, dy0 = 0, dx1 = 0, dy1 = 0;
           if (i > 0) { dx0 = (xArr[i+1] - xArr[i-1]) * tension; dy0 = (yArr[i+1] - yArr[i-1]) * tension; }
-          if (i + 2 < displayPts.length) { dx1 = (xArr[i+2] - xArr[i]) * tension; dy1 = (yArr[i+2] - yArr[i]) * tension; }
+          if (i + 2 < pts.length) { dx1 = (xArr[i+2] - xArr[i]) * tension; dy1 = (yArr[i+2] - yArr[i]) * tension; }
           oc.bezierCurveTo(x0 + dx0, y0 + dy0, x1 - dx1, y1 - dy1, x1, y1);
         }
       }
 
-      const lastIdx = displayPts.length - 1;
+      const lastIdx = pts.length - 1;
       const lastX = xArr[lastIdx];
       const lastY = yArr[lastIdx];
 
-      // Stroke line
       oc.strokeStyle = color;
       oc.lineWidth = 2.5;
       oc.lineJoin = 'round';
       oc.lineCap = 'round';
       oc.stroke();
 
-      // Fill area under line
+      // Fill under line
       oc.lineTo(lastX, h);
       oc.lineTo(xArr[0], h);
       oc.closePath();
@@ -195,7 +151,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       oc.fillStyle = vertGrad;
       oc.fill();
 
-      // Erase edges on offscreen canvas — fades line AND fill together
+      // Edge fade
       oc.globalCompositeOperation = 'destination-out';
       const fadeW = w * 0.15;
 
@@ -211,55 +167,44 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       oc.fillStyle = rightFade;
       oc.fillRect(w - fadeW, 0, fadeW, h);
 
-      // Composite offscreen result onto main canvas
+      // Composite onto main canvas
       ctx.drawImage(off, 0, 0, w * dpr, h * dpr, 0, 0, w, h);
 
-      // Markers for results screen — exit dot only, colored by outcome
+      // Exit dot for results
       if (markers) {
-        const exitColor = winning ? '#6DD0A9' : '#FF8AA8';
-
-        // Exit dot (green or red based on outcome)
         ctx.beginPath();
         ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = exitColor;
+        ctx.fillStyle = winning ? '#6DD0A9' : '#FF8AA8';
         ctx.fill();
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.stroke();
       }
 
-      // Holographic RGB dot at current price (live mode only)
-      if (!markers && displayPts.length > 2) {
+      // Holographic dot (live mode)
+      if (!markers && pts.length > 2) {
         pulseT.current += 0.03;
         const t = pulseT.current;
         const pulse = Math.sin(t * 1.7);
-
-        // Cycle hue over time for holographic RGB effect
         const hue = (t * 60) % 360;
         const hue2 = (hue + 120) % 360;
         const hue3 = (hue + 240) % 360;
 
-        // Outer glow — shifting color halo
-        const glowR = 16 + pulse * 4;
         ctx.beginPath();
-        ctx.arc(lastX, lastY, glowR, 0, Math.PI * 2);
+        ctx.arc(lastX, lastY, 16 + pulse * 4, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${hue}, 100%, 75%, ${0.12 + pulse * 0.04})`;
         ctx.fill();
 
-        // Mid ring — second hue offset
-        const midR = 10 + pulse * 2;
         ctx.beginPath();
-        ctx.arc(lastX, lastY, midR, 0, Math.PI * 2);
+        ctx.arc(lastX, lastY, 10 + pulse * 2, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${hue2}, 100%, 70%, ${0.18 + pulse * 0.05})`;
         ctx.fill();
 
-        // Inner ring — third hue offset
         ctx.beginPath();
         ctx.arc(lastX, lastY, 6.5, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${hue3}, 100%, 80%, 0.25)`;
         ctx.fill();
 
-        // Core dot — bright white with colored shadow
         ctx.beginPath();
         ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF';
@@ -268,28 +213,21 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Sparkle particles around the dot (spawned on milestones)
+        // Sparkles
         const sparkles = sparklesRef.current;
-        const dtSpark = 0.016; // approximate frame time
         for (let s = sparkles.length - 1; s >= 0; s--) {
           const sp = sparkles[s];
-          sp.life -= dtSpark / sp.maxLife;
-          if (sp.life <= 0) {
-            sparkles.splice(s, 1);
-            continue;
-          }
+          sp.life -= 0.016 / sp.maxLife;
+          if (sp.life <= 0) { sparkles.splice(s, 1); continue; }
           const dist = (1 - sp.life) * sp.speed;
           const sx = lastX + Math.cos(sp.angle) * dist;
           const sy = lastY + Math.sin(sp.angle) * dist;
           const alpha = sp.life * 0.9;
-          const sparkColor = sp.positive
-            ? `rgba(109, 208, 169, ${alpha})`
-            : `rgba(255, 77, 106, ${alpha})`;
-
+          const sc = sp.positive ? `rgba(109,208,169,${alpha})` : `rgba(255,77,106,${alpha})`;
           ctx.beginPath();
           ctx.arc(sx, sy, sp.size * sp.life, 0, Math.PI * 2);
-          ctx.fillStyle = sparkColor;
-          ctx.shadowColor = sparkColor;
+          ctx.fillStyle = sc;
+          ctx.shadowColor = sc;
           ctx.shadowBlur = 6;
           ctx.fill();
           ctx.shadowBlur = 0;
