@@ -13,14 +13,24 @@ export default function OceanBackground() {
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
     let t = 0;
+    let cachedW = 0, cachedH = 0;
+    let lastFrame = 0;
 
-    const draw = () => {
-      // Use screen dimensions so pinch-to-zoom doesn't shrink the canvas
+    const draw = (now) => {
+      // Throttle to ~30fps — ocean doesn't need 60fps
+      if (now - lastFrame < 33) { animRef.current = requestAnimationFrame(draw); return; }
+      lastFrame = now;
       const w = Math.max(window.innerWidth, screen.width);
       const h = Math.max(window.innerHeight, screen.height);
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      // Only resize when dimensions change
+      if (w !== cachedW || h !== cachedH) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        cachedW = w;
+        cachedH = h;
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
 
       t += 0.008;
 
@@ -68,7 +78,7 @@ export default function OceanBackground() {
       for (const wave of waves) {
         ctx.beginPath();
         ctx.moveTo(0, h);
-        for (let x = 0; x <= w; x += 2) {
+        for (let x = 0; x <= w; x += 4) {
           const y = wave.y +
             Math.sin(x * wave.freq + t * wave.speed) * wave.amp +
             Math.sin(x * wave.freq * 1.7 + t * wave.speed * 1.3 + 1.5) * wave.amp * 0.4 +
@@ -83,7 +93,7 @@ export default function OceanBackground() {
 
       // Specular highlights — small bright flecks on the water
       ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 10; i++) {
         const fx = (Math.sin(t * 0.3 + i * 2.1) * 0.5 + 0.5) * w;
         const fy = horizonY + 10 + (Math.sin(t * 0.2 + i * 1.7) * 0.5 + 0.5) * (h * 0.35);
         const fw = 8 + Math.sin(t * 0.5 + i) * 4;

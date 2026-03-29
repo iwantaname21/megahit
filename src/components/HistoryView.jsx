@@ -7,12 +7,7 @@ function HistoryItem({ trade }) {
 
   return (
     <div
-      className="rounded-2xl p-4 mb-3"
-      style={{
-        background: 'rgba(255,255,255,0.4)',
-        backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255,255,255,0.3)',
-      }}
+      className="liquid-glass rounded-2xl p-4 mb-3"
     >
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
@@ -51,15 +46,15 @@ export default function HistoryView({ trades }) {
     return (
       <div className="flex flex-col items-center justify-center pt-20 px-6">
         <span
-          className="material-symbols-outlined text-5xl mb-4"
-          style={{ color: 'rgba(19,19,20,0.2)', fontVariationSettings: "'FILL' 0" }}
+          className="material-symbols-outlined mb-4"
+          style={{ color: 'rgba(19,19,20,0.6)', fontVariationSettings: "'FILL' 0", fontSize: '60px' }}
         >
           history
         </span>
-        <p className="text-[12px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.36)' }}>
+        <p className="font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.6)', fontSize: '14px' }}>
           No trades yet
         </p>
-        <p className="text-[11px] font-bold mt-1" style={{ color: 'rgba(19,19,20,0.2)' }}>
+        <p className="font-bold mt-1" style={{ color: 'rgba(19,19,20,0.48)', fontSize: '13px' }}>
           Spin to start trading
         </p>
       </div>
@@ -67,8 +62,8 @@ export default function HistoryView({ trades }) {
   }
 
   return (
-    <div className="px-5 pt-4">
-      <p className="text-[10px] font-extrabold uppercase tracking-widest mb-4" style={{ color: 'rgba(19,19,20,0.48)' }}>
+    <div className="pt-4">
+      <p className="font-extrabold uppercase tracking-widest mb-4" style={{ color: 'rgba(19,19,20,0.6)', fontSize: '13px' }}>
         {trades.length} trade{trades.length !== 1 ? 's' : ''}
       </p>
       {trades.map((trade) => (
