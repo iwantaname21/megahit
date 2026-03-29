@@ -190,7 +190,7 @@ export default function LockingScreen() {
           animate={{ opacity: [1, 0.5, 1] }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <span className="text-[#131314]/50 text-lg">✱</span>
+          <span className="text-[#131314]/50 text-lg">🔒</span>
           <span
             className="text-[11px] font-extrabold tracking-[0.2em] uppercase"
             style={{ color: 'rgba(19,19,20,0.5)' }}

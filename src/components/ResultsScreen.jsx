@@ -52,17 +52,10 @@ function FlipTile({ label, value, revealed, delay }) {
               lock
             </span>
           </div>
-          {/* Back: revealed value */}
+          {/* Back: revealed value — same glass-tile look as play screen */}
           <div
-            className="flip-card-back"
-            style={{
-              borderRadius: '1rem',
-              background: 'rgba(25, 25, 26, 0.82)',
-              backdropFilter: 'blur(40px) saturate(1.5)',
-              WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              boxShadow: `0 0 20px ${textColor}30, inset 0 1px 0 rgba(255,255,255,0.12)`,
-            }}
+            className="flip-card-back glass-tile three-d-tile"
+            style={{ borderRadius: '1rem' }}
           >
             <span className="font-black text-xl tracking-tight" style={{ color: textColor }}>
               {displayValue}
@@ -80,17 +73,6 @@ function ResultChart({ pnlHistory }) {
   return (
     <div className="relative">
       <PnlChart data={pnlHistory} isWinning={isWin} height={140} showMarkers />
-      {/* Entry / Exit labels */}
-      {pnlHistory.length > 1 && (
-        <div className="flex justify-between mt-1">
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#6DD0A9' }}>
-            ● ENTRY
-          </span>
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#FF8AA8' }}>
-            EXIT ●
-          </span>
-        </div>
-      )}
     </div>
   );
 }
@@ -222,40 +204,27 @@ export default function ResultsScreen() {
             className="rounded-xl px-4 py-3 grid grid-cols-3 gap-2"
             style={{ background: 'rgba(19,19,20,0.05)' }}
           >
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1 mb-1">
-                <span
-                  className="material-symbols-outlined text-sm"
-                  style={{ color: 'rgba(19,19,20,0.4)' }}
-                >
-                  schedule
-                </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
-                  Duration
-                </span>
-              </div>
-              <span className="text-[12px] font-extrabold text-[#131314]">
+            <div className="flex flex-col items-center justify-between pr-4" style={{ borderRight: '1px solid rgba(19,19,20,0.1)' }}>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+                Duration
+              </span>
+              <span className="text-[12px] font-extrabold text-[#131314] mt-1.5">
                 {formatDuration(duration)}
               </span>
             </div>
-            <div
-              className="flex flex-col items-center"
-              style={{ borderLeft: '1px solid rgba(19,19,20,0.07)', borderRight: '1px solid rgba(19,19,20,0.07)' }}
-            >
-              <span className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(19,19,20,0.4)' }}>
+            <div className="flex flex-col items-center justify-between">
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
                 Entry → Exit
               </span>
-              <span className="text-[10px] font-extrabold text-[#131314] text-center whitespace-nowrap">
+              <span className="text-[10px] font-extrabold text-[#131314] whitespace-nowrap mt-1.5">
                 {entryPrice ? formatPrice(entryPrice, asset) : '—'} → {exitPrice ? formatPrice(exitPrice, asset) : '—'}
               </span>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1 mb-1">
-                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
-                  Position
-                </span>
-              </div>
-              <span className="text-[12px] font-extrabold text-[#131314]">
+            <div className="flex flex-col items-center justify-between pl-4" style={{ borderLeft: '1px solid rgba(19,19,20,0.1)' }}>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(19,19,20,0.4)' }}>
+                Position
+              </span>
+              <span className="text-[12px] font-extrabold text-[#131314] mt-1.5">
                 {doublesCount > 0 ? `${Math.pow(2, doublesCount)}×` : '1×'} ${originalBet?.toFixed(0)}
               </span>
             </div>

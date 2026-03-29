@@ -75,10 +75,10 @@ export default function PlayScreen() {
                         className="mt-3 rounded-xl px-4 py-3 text-[11px] leading-relaxed font-medium space-y-1.5"
                         style={{ background: 'rgba(19,19,20,0.04)', color: 'rgba(19,19,20,0.55)' }}
                       >
-                        <p><span className="font-bold text-[#131314]/70">1.</span> Set your bet and press spin.</p>
-                        <p><span className="font-bold text-[#131314]/70">2.</span> A random asset, leverage, and side are locked — hidden from you.</p>
-                        <p><span className="font-bold text-[#131314]/70">3.</span> Watch the live PnL. Double down or cut 50% anytime.</p>
-                        <p><span className="font-bold text-[#131314]/70">4.</span> Close when you're ready. The trade is revealed.</p>
+                        <div className="flex gap-1.5"><span className="font-bold text-[#131314]/70 shrink-0">1.</span><span>Set your bet and press spin.</span></div>
+                        <div className="flex gap-1.5"><span className="font-bold text-[#131314]/70 shrink-0">2.</span><span>A random asset, leverage, and side are locked — hidden from you.</span></div>
+                        <div className="flex gap-1.5"><span className="font-bold text-[#131314]/70 shrink-0">3.</span><span>Watch the live PnL. Double down or cut 50% anytime.</span></div>
+                        <div className="flex gap-1.5"><span className="font-bold text-[#131314]/70 shrink-0">4.</span><span>Close when you're ready. The trade is revealed.</span></div>
                       </div>
                     </motion.div>
                   )}
@@ -135,16 +135,17 @@ export default function PlayScreen() {
                 />
               </div>
 
-              {/* Preset pills — glass buttons */}
-              <div className="flex gap-3">
+              {/* Preset pills — same style as PLAY/HISTORY nav */}
+              <div className="glass-nav rounded-full px-1.5 py-1.5 flex gap-1">
                 {[10, 50, 100].map((preset) => (
                   <motion.button
                     key={preset}
                     onClick={() => setBetAmount(Math.min(preset, balance))}
-                    className={`flex-1 py-3 rounded-full font-bold text-sm ${
-                      Math.round(betAmount) === preset ? 'glass-btn glass-btn-active' : 'glass-btn'
+                    className={`flex-1 py-2.5 rounded-full font-bold text-sm ${
+                      Math.round(betAmount) === preset
+                        ? 'glass-nav-active text-[#131314]'
+                        : 'text-[#131314]/40'
                     }`}
-                    style={{ color: Math.round(betAmount) === preset ? '#4BA889' : '#131314' }}
                     {...springBounce}
                   >
                     ${preset}
