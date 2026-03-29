@@ -42,12 +42,12 @@ export default function PlayScreen() {
       <div className="flex-1 px-5 pb-8 overflow-y-auto flex flex-col">
         {activeTab === 'play' ? (
           <>
-            {/* Top spacer — larger to push card away from header toward center */}
-            <div className="flex-[2] min-h-[16px]" />
+            {/* Top spacer — shifted up 20% */}
+            <div className="flex-[1] min-h-[12px]" />
 
-            {/* Glass card with tiles + betting */}
+            {/* Glass card with tiles + betting — compact */}
             <div
-              className="liquid-glass rounded-2xl p-6 border mb-5 relative overflow-hidden"
+              className="liquid-glass rounded-2xl p-4 border mb-4 relative overflow-hidden"
               style={{ borderColor: 'rgba(255,255,255,0.3)' }}
             >
               {/* Subtle gradient accent — contained within card */}
@@ -99,7 +99,7 @@ export default function PlayScreen() {
 
               {/* Balance + Bet row */}
               <div
-                className="flex justify-between items-end pb-5 mb-6"
+                className="flex justify-between items-end pb-4 mb-4"
                 style={{ borderBottom: '1px solid rgba(19,19,20,0.06)' }}
               >
                 <div className="flex flex-col">
@@ -133,7 +133,7 @@ export default function PlayScreen() {
               </div>
 
               {/* Slider — glass track */}
-              <div className="relative w-full flex items-center mb-6" style={{ height: '32px' }}>
+              <div className="relative w-full flex items-center mb-4" style={{ height: '32px' }}>
                 <div className="absolute w-full rounded-full slider-track" style={{ height: '6px' }} />
                 <div className="absolute rounded-full slider-fill" style={{ height: '6px', width: `${sliderPct}%` }} />
                 <input
@@ -212,8 +212,8 @@ export default function PlayScreen() {
               </span>
             </div>
 
-            {/* Bottom spacer — smaller so card sits higher */}
-            <div className="flex-[3] min-h-[16px]" />
+            {/* Bottom spacer */}
+            <div className="flex-[4] min-h-[16px]" />
           </>
         ) : (
           <HistoryView trades={tradeHistory} />
