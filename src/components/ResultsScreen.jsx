@@ -157,12 +157,9 @@ export default function ResultsScreen() {
 
         {/* Results card */}
         <div
-          className="liquid-glass rounded-2xl p-5 border mb-4"
+          className="liquid-glass rounded-2xl p-5 mb-4"
           style={{
-            borderColor: isWin ? 'rgba(109,208,169,0.3)' : 'rgba(255,138,168,0.3)',
-            boxShadow: isWin
-              ? '0 0 40px rgba(109,208,169,0.12)'
-              : '0 0 40px rgba(255,138,168,0.12)',
+            borderColor: isWin ? 'rgba(109,208,169,0.25)' : 'rgba(255,138,168,0.25)',
           }}
         >
           {/* Chart */}

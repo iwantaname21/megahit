@@ -97,18 +97,18 @@ export default function PnlCard({
 }) {
   const color = isWinning ? '#6DD0A9' : '#FF8AA8';
   const glowClass = '';
-  const tintBg = isWinning ? 'rgba(109,208,169,0.08)' : 'rgba(255,138,168,0.09)';
-  const borderColor = isWinning ? 'rgba(109,208,169,0.35)' : 'rgba(255,138,168,0.35)';
+  const tintBg = isWinning ? 'rgba(109,208,169,0.06)' : 'rgba(255,138,168,0.07)';
+  const borderColor = isWinning ? 'rgba(109,208,169,0.3)' : 'rgba(255,138,168,0.3)';
 
   return (
     <motion.div
       className={`w-full rounded-2xl p-5 relative overflow-hidden ${glowClass}`}
       animate={{ borderColor }}
       style={{
-        background: 'rgba(255,255,255,0.18)',
-        backdropFilter: 'blur(40px) saturate(1.8) brightness(1.1)',
-        WebkitBackdropFilter: 'blur(40px) saturate(1.8) brightness(1.1)',
-        border: `1px solid ${borderColor}`,
+        background: 'rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(48px) saturate(2.0) brightness(1.12)',
+        WebkitBackdropFilter: 'blur(48px) saturate(2.0) brightness(1.12)',
+        border: `1.5px solid ${borderColor}`,
       }}
       transition={{ duration: 0.4 }}
     >
