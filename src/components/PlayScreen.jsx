@@ -135,21 +135,25 @@ export default function PlayScreen() {
                 />
               </div>
 
-              {/* Preset pills — same style as PLAY/HISTORY nav */}
-              <div className="glass-nav rounded-full px-1.5 py-1.5 flex gap-1">
+              {/* Preset pills — darker trough with sliding pill */}
+              <div className="glass-nav-dark rounded-full px-1.5 py-1.5 flex gap-1">
                 {[10, 50, 100].map((preset) => (
-                  <motion.button
+                  <button
                     key={preset}
                     onClick={() => setBetAmount(Math.min(preset, balance))}
-                    className={`flex-1 py-2.5 rounded-full font-bold text-sm ${
-                      Math.round(betAmount) === preset
-                        ? 'glass-nav-active text-[#131314]'
-                        : 'text-[#131314]/40'
+                    className={`relative flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
+                      Math.round(betAmount) === preset ? 'text-[#131314]' : 'text-[#131314]/40'
                     }`}
-                    {...springBounce}
                   >
-                    ${preset}
-                  </motion.button>
+                    {Math.round(betAmount) === preset && (
+                      <motion.div
+                        layoutId="preset-pill"
+                        className="absolute inset-0 rounded-full sliding-pill"
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                      />
+                    )}
+                    <span className="relative z-10">${preset}</span>
+                  </button>
                 ))}
               </div>
             </div>

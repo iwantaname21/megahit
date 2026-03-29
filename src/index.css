@@ -256,20 +256,35 @@ body {
   transform: rotateY(180deg);
 }
 
-/* Glass tab nav */
+/* Glass tab nav — top header: more transparent, glassy shine */
 .glass-nav {
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(32px) saturate(1.5);
-  -webkit-backdrop-filter: blur(32px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(40px) saturate(1.6);
+  -webkit-backdrop-filter: blur(40px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 2px 12px rgba(19, 19, 20, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.glass-nav-active {
-  background: rgba(255, 255, 255, 0.45);
+/* Preset nav — slightly darker trough for contrast */
+.glass-nav-dark {
+  background: rgba(19, 19, 20, 0.06);
+  backdrop-filter: blur(32px) saturate(1.4);
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 2px 8px rgba(19, 19, 20, 0.04);
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+}
+
+/* Sliding pill indicator */
+.sliding-pill {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 4px rgba(19, 19, 20, 0.06);
 }
