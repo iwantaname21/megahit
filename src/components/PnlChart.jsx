@@ -170,8 +170,10 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMax = dom.dispMax;
 
       // X-axis lerp — smoothly animate horizontal compression as points are added
+      // Start with a minimum of 30 "virtual" points so early additions barely shift the scale
       const xl = xLerpRef.current;
-      const targetCount = displayPts.length;
+      const MIN_DISPLAY_COUNT = 30;
+      const targetCount = Math.max(displayPts.length, MIN_DISPLAY_COUNT);
       if (xl.dispCount === 0) {
         xl.dispCount = targetCount;
         xl.targetCount = targetCount;
