@@ -15,18 +15,21 @@ const springBounce = {
 export default function PlayScreen() {
   const { balance, betAmount, setBetAmount, startSpin, activeTab, setActiveTab, tradeHistory } = useGameStore();
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const lastSliderHaptic = useRef(0);
   const handleSlider = (e) => {
     const val = parseFloat(e.target.value);
     setBetAmount(val);
-    // Haptic every ~30ms while dragging
     const now = Date.now();
     if (now - lastSliderHaptic.current > 30) {
       hapticSlider();
       lastSliderHaptic.current = now;
     }
   };
+
+  const startDrag = () => setIsDragging(true);
+  const endDrag = () => setIsDragging(false);
 
   const sliderPct = balance > 0 ? (betAmount / balance) * 100 : 0;
 
@@ -140,7 +143,12 @@ export default function PlayScreen() {
                   step={1}
                   value={betAmount}
                   onChange={handleSlider}
-                  className="bet-slider"
+                  onMouseDown={startDrag}
+                  onMouseUp={endDrag}
+                  onTouchStart={startDrag}
+                  onTouchEnd={endDrag}
+                  onTouchCancel={endDrag}
+                  className={`bet-slider ${isDragging ? 'dragging' : ''}`}
                 />
               </div>
 

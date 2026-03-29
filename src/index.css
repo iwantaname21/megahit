@@ -157,11 +157,29 @@ body {
     0 4px 16px rgba(19, 19, 20, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
     inset 0 -1px 0 rgba(0, 0, 0, 0.03);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Dragging state — controlled by React class toggle, not :active */
+.bet-slider.dragging::-webkit-slider-thumb {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 4px 16px rgba(109, 208, 169, 0.25),
+    0 2px 8px rgba(19, 19, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
 }
 
 .bet-slider::-webkit-slider-thumb:active {
-  transform: scale(1.15);
+  /* fallback for desktop */
+  width: 36px;
+  height: 36px;
   box-shadow:
     0 4px 16px rgba(109, 208, 169, 0.25),
     0 2px 8px rgba(19, 19, 20, 0.08),
@@ -178,6 +196,13 @@ body {
   box-shadow:
     0 2px 8px rgba(19, 19, 20, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.bet-slider.dragging::-moz-range-thumb {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.65);
 }
 
 /* Slider track — glass tinted */
