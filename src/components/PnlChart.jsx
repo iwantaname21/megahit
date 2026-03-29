@@ -4,10 +4,12 @@ import React, { useRef, useEffect } from 'react';
 // The chart lerps the last point's position toward its target so the line extends
 // smoothly rather than jumping tick-to-tick.
 
-export default function PnlChart({ data, isWinning, showMarkers = false, height = 120 }) {
+export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null }) {
   const canvasRef = useRef(null);
   const dataRef = useRef(data);
   const winRef = useRef(isWinning);
+  const milestoneRef = useRef(milestone);
+  const sparklesRef = useRef([]); // active sparkle particles
   const markersRef = useRef(showMarkers);
   const animRef = useRef(null);
   const pulseT = useRef(0);
@@ -19,6 +21,22 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   dataRef.current = data;
   winRef.current = isWinning;
   markersRef.current = showMarkers;
+
+  // Spawn sparkles when milestone changes to non-null
+  if (milestone !== null && milestone !== milestoneRef.current) {
+    const positive = milestone;
+    for (let i = 0; i < 12; i++) {
+      sparklesRef.current.push({
+        angle: (Math.PI * 2 * i) / 12 + Math.random() * 0.3,
+        speed: 40 + Math.random() * 60,
+        life: 1,
+        maxLife: 0.6 + Math.random() * 0.5,
+        size: 1.5 + Math.random() * 2.5,
+        positive,
+      });
+    }
+  }
+  milestoneRef.current = milestone;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -221,6 +239,33 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         ctx.shadowBlur = 16;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        // Sparkle particles around the dot (spawned on milestones)
+        const sparkles = sparklesRef.current;
+        const dtSpark = 0.016; // approximate frame time
+        for (let s = sparkles.length - 1; s >= 0; s--) {
+          const sp = sparkles[s];
+          sp.life -= dtSpark / sp.maxLife;
+          if (sp.life <= 0) {
+            sparkles.splice(s, 1);
+            continue;
+          }
+          const dist = (1 - sp.life) * sp.speed;
+          const sx = lastX + Math.cos(sp.angle) * dist;
+          const sy = lastY + Math.sin(sp.angle) * dist;
+          const alpha = sp.life * 0.9;
+          const sparkColor = sp.positive
+            ? `rgba(109, 208, 169, ${alpha})`
+            : `rgba(255, 77, 106, ${alpha})`;
+
+          ctx.beginPath();
+          ctx.arc(sx, sy, sp.size * sp.life, 0, Math.PI * 2);
+          ctx.fillStyle = sparkColor;
+          ctx.shadowColor = sparkColor;
+          ctx.shadowBlur = 6;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
       }
 
       animRef.current = requestAnimationFrame(draw);

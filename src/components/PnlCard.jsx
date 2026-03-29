@@ -93,6 +93,7 @@ export default function PnlCard({
   positionSize,
   realizedPnl,
   cardFlash = null,
+  milestone = null, // true = up milestone, false = down, null = none
 }) {
   const color = isWinning ? '#6DD0A9' : '#FF8AA8';
   const glowClass = '';
@@ -179,7 +180,7 @@ export default function PnlCard({
 
       {/* Chart */}
       <div className="relative z-10 mb-5">
-        <PnlChart data={pnlHistory} isWinning={isWinning} height={110} />
+        <PnlChart data={pnlHistory} isWinning={isWinning} height={110} milestone={milestone} />
       </div>
 
       {/* Stats bottom bar */}

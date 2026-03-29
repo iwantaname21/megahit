@@ -256,6 +256,7 @@ export default function TradingScreen() {
             isWinning={isWinning}
             elapsedTime={elapsedTime}
             balance={balance}
+            milestone={milestoneShake ? (milestoneShake === 'up') : null}
             positionSize={positionSize}
             realizedPnl={realizedPnl}
             cardFlash={cardFlash}

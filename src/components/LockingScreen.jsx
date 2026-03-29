@@ -36,13 +36,17 @@ function SpinReel({ label, strip, speed, isLocked }) {
   const cycleHeight = halfLen * ITEM_H;
 
   useEffect(() => {
-    lastTimeRef.current = performance.now();
+    lastTimeRef.current = 0;
 
     const tick = (now) => {
-      const dt = now - lastTimeRef.current;
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = now;
+        animRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      const dt = Math.min(now - lastTimeRef.current, 50); // clamp to 50ms max (20fps floor)
       lastTimeRef.current = now;
 
-      // speed is px/sec, dt is ms
       offsetRef.current -= speed * (dt / 1000);
       if (Math.abs(offsetRef.current) >= cycleHeight) {
         offsetRef.current += cycleHeight;
