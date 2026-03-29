@@ -23,30 +23,29 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     tickTime: 0,      // timestamp when new tick arrived
   });
 
-  // Domain lerp state: smoothly animate axis bounds
+  // Domain state: continuously chase target bounds
   const domainRef = useRef({
-    dispMin: null,    // currently displayed domMin
-    dispMax: null,    // currently displayed domMax
-    targetMin: 0,
-    targetMax: 0,
-    tickTime: 0,
-    fromMin: 0,
-    fromMax: 0,
+    dispMin: null,
+    dispMax: null,
   });
+
+  // Sparkle milestone tracking (independent 3.5% intervals for dot sparkles)
+  const sparkleUpRef = useRef(0);
+  const sparkleDownRef = useRef(0);
 
   dataRef.current = data;
   winRef.current = isWinning;
   markersRef.current = showMarkers;
 
-  // Spawn sparkles on milestone
-  if (milestone !== null && milestone !== milestoneRef.current) {
-    for (let i = 0; i < 12; i++) {
+  // Spawn sparkles on milestone — fires on every transition to non-null
+  if (milestone !== null && milestoneRef.current === null) {
+    for (let i = 0; i < 14; i++) {
       sparklesRef.current.push({
-        angle: (Math.PI * 2 * i) / 12 + Math.random() * 0.3,
-        speed: 40 + Math.random() * 60,
+        angle: (Math.PI * 2 * i) / 14 + Math.random() * 0.3,
+        speed: 35 + Math.random() * 55,
         life: 1,
-        maxLife: 0.6 + Math.random() * 0.5,
-        size: 1.5 + Math.random() * 2.5,
+        maxLife: 0.5 + Math.random() * 0.5,
+        size: 1.5 + Math.random() * 3,
         positive: milestone,
       });
     }
@@ -130,36 +129,21 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const targetDomMin = Math.min(minV, 0) - pad;
       const targetDomMax = Math.max(maxV, 0) + pad;
 
+      // Continuous domain chase — exponential decay toward target, expand instantly
       const dom = domainRef.current;
       if (dom.dispMin === null) {
-        // First frame — snap to target
         dom.dispMin = targetDomMin;
         dom.dispMax = targetDomMax;
-        dom.targetMin = targetDomMin;
-        dom.targetMax = targetDomMax;
-        dom.fromMin = targetDomMin;
-        dom.fromMax = targetDomMax;
-        dom.tickTime = now;
+      } else {
+        // Expand instantly (never clip), shrink smoothly (chase at ~15% per frame)
+        const chase = 0.08;
+        dom.dispMin = targetDomMin < dom.dispMin
+          ? targetDomMin  // expanding down — snap
+          : dom.dispMin + (targetDomMin - dom.dispMin) * chase; // shrinking — smooth
+        dom.dispMax = targetDomMax > dom.dispMax
+          ? targetDomMax  // expanding up — snap
+          : dom.dispMax + (targetDomMax - dom.dispMax) * chase; // shrinking — smooth
       }
-
-      // Detect when target bounds change (new tick shifted the domain)
-      if (targetDomMin !== dom.targetMin || targetDomMax !== dom.targetMax) {
-        dom.fromMin = dom.dispMin;
-        dom.fromMax = dom.dispMax;
-        dom.targetMin = targetDomMin;
-        dom.targetMax = targetDomMax;
-        dom.tickTime = now;
-      }
-
-      // Lerp displayed domain toward target — but EXPAND instantly to prevent clipping
-      const domElapsed = now - dom.tickTime;
-      const domT = Math.min(domElapsed / TICK_MS, 1);
-      const domEased = 1 - Math.pow(1 - domT, 3);
-      const lerpedMin = dom.fromMin + (dom.targetMin - dom.fromMin) * domEased;
-      const lerpedMax = dom.fromMax + (dom.targetMax - dom.fromMax) * domEased;
-      // When bounds need to expand (min goes lower or max goes higher), snap immediately
-      dom.dispMin = Math.min(lerpedMin, targetDomMin);
-      dom.dispMax = Math.max(lerpedMax, targetDomMax);
 
       const domMin = dom.dispMin;
       const domMax = dom.dispMax;
