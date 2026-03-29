@@ -151,12 +151,15 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         dom.tickTime = now;
       }
 
-      // Lerp displayed domain toward target
+      // Lerp displayed domain toward target — but EXPAND instantly to prevent clipping
       const domElapsed = now - dom.tickTime;
       const domT = Math.min(domElapsed / TICK_MS, 1);
       const domEased = 1 - Math.pow(1 - domT, 3);
-      dom.dispMin = dom.fromMin + (dom.targetMin - dom.fromMin) * domEased;
-      dom.dispMax = dom.fromMax + (dom.targetMax - dom.fromMax) * domEased;
+      const lerpedMin = dom.fromMin + (dom.targetMin - dom.fromMin) * domEased;
+      const lerpedMax = dom.fromMax + (dom.targetMax - dom.fromMax) * domEased;
+      // When bounds need to expand (min goes lower or max goes higher), snap immediately
+      dom.dispMin = Math.min(lerpedMin, targetDomMin);
+      dom.dispMax = Math.max(lerpedMax, targetDomMax);
 
       const domMin = dom.dispMin;
       const domMax = dom.dispMax;
@@ -170,7 +173,10 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         // Pin last point to the right edge; spread others evenly to the left
         return margin + (i / (n - 1)) * chartW;
       };
-      const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
+      const toY = (v) => {
+        const y = h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
+        return Math.max(4, Math.min(h - 4, y)); // clamp within chart bounds
+      };
 
       // Zero line
       const zeroY = toY(0);
