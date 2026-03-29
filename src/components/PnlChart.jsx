@@ -168,21 +168,23 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       // Composite offscreen result onto main canvas
       ctx.drawImage(off, 0, 0, w * dpr, h * dpr, 0, 0, w, h);
 
-      // Markers for results screen — entry=red, exit=green
+      // Markers for results screen — entry=black, exit=win/loss color
       if (markers) {
-        // Entry dot (red)
+        const exitColor = winning ? '#6DD0A9' : '#FF8AA8';
+
+        // Entry dot (black)
         ctx.beginPath();
         ctx.arc(xArr[0], yArr[0], 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF8AA8';
+        ctx.fillStyle = '#131314';
         ctx.fill();
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Exit dot (green)
+        // Exit dot (green or red based on outcome)
         ctx.beginPath();
         ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#6DD0A9';
+        ctx.fillStyle = exitColor;
         ctx.fill();
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
@@ -245,10 +247,10 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       />
       {showMarkers && data && data.length > 1 && (
         <div className="flex justify-between mt-1">
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#FF8AA8' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#131314' }}>
             ● ENTRY
           </span>
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#6DD0A9' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: isWinning ? '#6DD0A9' : '#FF8AA8' }}>
             EXIT ●
           </span>
         </div>
