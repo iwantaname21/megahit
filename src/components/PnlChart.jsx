@@ -111,6 +111,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       // --- Draw line + fill on cached offscreen canvas ---
       const off = offRef.current;
       const oc = off.getContext('2d');
+      oc.globalCompositeOperation = 'source-over'; // reset from previous frame's destination-out
       oc.setTransform(dpr, 0, 0, dpr, 0, 0);
       oc.clearRect(0, 0, w, h);
 
