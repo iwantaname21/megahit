@@ -105,9 +105,9 @@ export default function PnlCard({
       className={`w-full rounded-2xl p-5 relative overflow-hidden ${glowClass}`}
       animate={{ borderColor }}
       style={{
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(48px) saturate(2.0) brightness(1.12)',
-        WebkitBackdropFilter: 'blur(48px) saturate(2.0) brightness(1.12)',
+        background: 'transparent',
+        backdropFilter: 'blur(48px) saturate(2.0) brightness(1.08)',
+        WebkitBackdropFilter: 'blur(48px) saturate(2.0) brightness(1.08)',
         border: `1.5px solid ${borderColor}`,
       }}
       transition={{ duration: 0.4 }}
