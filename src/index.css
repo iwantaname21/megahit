@@ -32,7 +32,7 @@ body {
 
 /* Dark tile — flat liquid glass pill, no 3D shadow, 50% more transparent */
 .glass-tile {
-  background: rgba(25, 25, 26, 0.55);
+  background: rgba(15, 15, 16, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.14);
