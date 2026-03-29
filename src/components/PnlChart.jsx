@@ -23,14 +23,6 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     tickTime: 0,      // timestamp when new tick arrived
   });
 
-  // X-axis lerp state: smoothly animate horizontal compression
-  const xLerpRef = useRef({
-    dispCount: 0,     // currently displayed point count (fractional)
-    targetCount: 0,
-    fromCount: 0,
-    tickTime: 0,
-  });
-
   // Domain lerp state: smoothly animate axis bounds
   const domainRef = useRef({
     dispMin: null,    // currently displayed domMin
@@ -169,31 +161,15 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMin = dom.dispMin;
       const domMax = dom.dispMax;
 
-      // X-axis lerp — smoothly animate horizontal compression as points are added
-      // Start with a minimum of 30 "virtual" points so early additions barely shift the scale
-      const xl = xLerpRef.current;
-      const MIN_DISPLAY_COUNT = 30;
-      const targetCount = Math.max(displayPts.length, MIN_DISPLAY_COUNT);
-      if (xl.dispCount === 0) {
-        xl.dispCount = targetCount;
-        xl.targetCount = targetCount;
-        xl.fromCount = targetCount;
-        xl.tickTime = now;
-      }
-      if (targetCount !== xl.targetCount) {
-        xl.fromCount = xl.dispCount;
-        xl.targetCount = targetCount;
-        xl.tickTime = now;
-      }
-      const xlElapsed = now - xl.tickTime;
-      const xlT = Math.min(xlElapsed / TICK_MS, 1);
-      const xlEased = 1 - Math.pow(1 - xlT, 3);
-      xl.dispCount = xl.fromCount + (xl.targetCount - xl.fromCount) * xlEased;
-
-      const dispCount = markers ? targetCount : Math.max(xl.dispCount, 2);
-
+      // X-axis: last point always pinned to right margin, earlier points spread evenly
       const margin = 25;
-      const toX = (i) => (i / (dispCount - 1)) * (w - margin * 2) + margin;
+      const chartW = w - margin * 2;
+      const n = displayPts.length;
+      const toX = (i) => {
+        if (n <= 1) return margin + chartW / 2;
+        // Pin last point to the right edge; spread others evenly to the left
+        return margin + (i / (n - 1)) * chartW;
+      };
       const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
 
       // Zero line
