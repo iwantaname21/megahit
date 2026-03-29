@@ -99,7 +99,8 @@ export default function ResultsScreen() {
   const isWin = totalPnl >= 0;
   const color = isWin ? '#6DD0A9' : '#FF8AA8';
   const pnlStr = formatCurrency(totalPnl);
-  const arrow = totalPnl >= 0 ? '↗' : '↘';
+  const arrowIcon = totalPnl >= 0 ? 'north_east' : 'south_east';
+  const arrowText = totalPnl >= 0 ? '+' : '-';
 
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 300);
@@ -107,7 +108,7 @@ export default function ResultsScreen() {
   }, []);
 
   const handleShare = () => {
-    const text = `MegaHit Trade: ${asset} ${leverage}x ${side}\n${pnlStr} (${arrow}${Math.abs(pnlPct).toFixed(1)}%)\nDuration: ${formatDuration(duration)}\nmegahit.app`;
+    const text = `MegaHit Trade: ${asset} ${leverage}x ${side}\n${pnlStr} (${arrowText}${Math.abs(pnlPct).toFixed(1)}%)\nDuration: ${formatDuration(duration)}\nmegahit.app`;
     navigator.clipboard.writeText(text).then(() => {
       setToastVisible(true);
       setTimeout(() => setToastVisible(false), 2500);
@@ -194,8 +195,9 @@ export default function ResultsScreen() {
             >
               {pnlStr}
             </motion.h1>
-            <span className="text-sm font-bold mt-1" style={{ color }}>
-              {arrow} {Math.abs(pnlPct).toFixed(1)}%
+            <span className="text-sm font-bold mt-1 flex items-center gap-0.5" style={{ color }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', fontVariationSettings: "'wght' 600" }}>{arrowIcon}</span>
+              {Math.abs(pnlPct).toFixed(1)}%
             </span>
           </div>
 

@@ -48,7 +48,7 @@ function SmoothNumber({ value, color, fontSize = '3.5rem' }) {
 
 // Smooth percent display
 function SmoothPercent({ value, color }) {
-  const displayRef = useRef(null);
+  const numRef = useRef(null);
   const currentVal = useRef(value);
   const targetVal = useRef(value);
   const animRef = useRef(null);
@@ -61,10 +61,8 @@ function SmoothPercent({ value, color }) {
       if (Math.abs(targetVal.current - currentVal.current) < 0.01) {
         currentVal.current = targetVal.current;
       }
-      if (displayRef.current) {
-        const v = currentVal.current;
-        const arrow = v >= 0 ? '↗' : '↘';
-        displayRef.current.textContent = `${arrow} ${Math.abs(v).toFixed(1)}%`;
+      if (numRef.current) {
+        numRef.current.textContent = `${Math.abs(currentVal.current).toFixed(1)}%`;
       }
       animRef.current = requestAnimationFrame(tick);
     };
@@ -73,12 +71,14 @@ function SmoothPercent({ value, color }) {
   }, []);
 
   return (
-    <span
-      ref={displayRef}
-      className="text-sm font-bold"
-      style={{ color, transition: 'color 0.3s' }}
-    >
-      {value >= 0 ? '↗' : '↘'} {Math.abs(value).toFixed(1)}%
+    <span className="text-sm font-bold flex items-center gap-0.5" style={{ color, transition: 'color 0.3s' }}>
+      <span
+        className="material-symbols-outlined"
+        style={{ fontSize: '16px', fontVariationSettings: "'wght' 600" }}
+      >
+        {value >= 0 ? 'north_east' : 'south_east'}
+      </span>
+      <span ref={numRef}>{Math.abs(value).toFixed(1)}%</span>
     </span>
   );
 }

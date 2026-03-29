@@ -60,7 +60,7 @@ export default function PlayScreen() {
                   onClick={() => setShowHowItWorks((v) => !v)}
                   {...springBounce}
                 >
-                  How it works {showHowItWorks ? '↙' : '↗'}
+                  How it works <span className="material-symbols-outlined text-[10px] align-middle" style={{ fontVariationSettings: "'wght' 600" }}>{showHowItWorks ? 'expand_less' : 'expand_more'}</span>
                 </motion.button>
                 <AnimatePresence>
                   {showHowItWorks && (

@@ -24,19 +24,26 @@ function valColor(label, value) {
 }
 
 // Smooth 60fps scrolling reel using requestAnimationFrame
+// speed is in px per second (time-based, consistent across all frame rates)
 function SpinReel({ label, strip, speed, isLocked }) {
   const reelRef = useRef(null);
   const offsetRef = useRef(0);
   const animRef = useRef(null);
+  const lastTimeRef = useRef(null);
 
   const ITEM_H = 80;
-  // One full cycle = half the strip (since we duplicate for seamless wrap)
   const halfLen = strip.length / 2;
   const cycleHeight = halfLen * ITEM_H;
 
   useEffect(() => {
-    const tick = () => {
-      offsetRef.current -= speed; // px per frame
+    lastTimeRef.current = performance.now();
+
+    const tick = (now) => {
+      const dt = now - lastTimeRef.current;
+      lastTimeRef.current = now;
+
+      // speed is px/sec, dt is ms
+      offsetRef.current -= speed * (dt / 1000);
       if (Math.abs(offsetRef.current) >= cycleHeight) {
         offsetRef.current += cycleHeight;
       }
@@ -141,11 +148,11 @@ export default function LockingScreen() {
     return () => timeoutsRef.current.forEach(clearTimeout);
   }, []);
 
-  // Different speeds per reel (px per frame at 60fps) — creates visual variety
+  // Speeds in px/second — time-based, consistent on all devices
   const reels = [
-    { label: 'ASSET', strip: ASSET_STRIP, speed: 4.5 },
-    { label: 'LEVERAGE', strip: LEVERAGE_STRIP, speed: 6.2 },
-    { label: 'SIDE', strip: SIDE_STRIP, speed: 3.4 },
+    { label: 'ASSET', strip: ASSET_STRIP, speed: 270 },
+    { label: 'LEVERAGE', strip: LEVERAGE_STRIP, speed: 370 },
+    { label: 'SIDE', strip: SIDE_STRIP, speed: 200 },
   ];
 
   return (
