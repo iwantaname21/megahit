@@ -152,32 +152,14 @@ export default function PlayScreen() {
                 />
               </div>
 
-              {/* Preset pills — darker trough with sliding pill */}
+              {/* Preset pills — pill appears instantly on matching preset */}
               <div className="glass-nav-dark rounded-full px-1.5 py-1.5 flex gap-1 relative">
-                {/* Sliding pill background — always rendered, positioned over active preset */}
-                {[10, 50, 100].includes(Math.round(betAmount)) && (() => {
-                  const idx = [10, 50, 100].indexOf(Math.round(betAmount));
-                  // Each button is 1/3 of container width; pill inset by 6px on each side
-                  const positions = ['6px', 'calc(33.333% + 2px)', 'calc(66.666% - 2px)'];
-                  return (
-                    <motion.div
-                      className="absolute rounded-full sliding-pill"
-                      style={{
-                        top: '6px',
-                        bottom: '6px',
-                        width: 'calc(33.333% - 6px)',
-                      }}
-                      animate={{ left: positions[idx] }}
-                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                    />
-                  );
-                })()}
                 {[10, 50, 100].map((preset) => (
                   <button
                     key={preset}
                     onClick={() => { hapticLight(); setBetAmount(Math.min(preset, balance)); }}
-                    className={`relative z-10 flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
-                      Math.round(betAmount) === preset ? 'text-[#131314]' : 'text-[#131314]/40'
+                    className={`relative flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
+                      Math.round(betAmount) === preset ? 'sliding-pill text-[#131314]' : 'text-[#131314]/40'
                     }`}
                   >
                     ${preset}

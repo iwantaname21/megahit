@@ -30,24 +30,23 @@ body {
     inset 0 -1px 0 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Dark tile — black liquid glass with refraction highlight */
+/* Dark tile — flat liquid glass pill, no 3D shadow, 50% more transparent */
 .glass-tile {
-  background: rgba(25, 25, 26, 0.78);
+  background: rgba(25, 25, 26, 0.55);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.04);
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.04),
+    0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* 3D tile shadow */
+/* 3D tile shadow — removed, flat glass only */
 .three-d-tile {
   box-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.18),
-    0 6px 16px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 /* Spin button — liquid glass orb with refraction */

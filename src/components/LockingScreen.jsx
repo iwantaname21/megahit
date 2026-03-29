@@ -63,7 +63,7 @@ function SpinReel({ label, strip, speed, isLocked }) {
   return (
     <div className="flex flex-col items-center gap-2">
       <span
-        className="font-bold uppercase text-[10px] tracking-widest"
+        className="font-bold uppercase text-[13px] tracking-widest"
         style={{ color: 'rgba(19,19,20,0.5)' }}
       >
         {label}
