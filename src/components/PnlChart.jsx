@@ -23,6 +23,17 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     tickTime: 0,      // timestamp when new tick arrived
   });
 
+  // Domain lerp state: smoothly animate axis bounds
+  const domainRef = useRef({
+    dispMin: null,    // currently displayed domMin
+    dispMax: null,    // currently displayed domMax
+    targetMin: 0,
+    targetMax: 0,
+    tickTime: 0,
+    fromMin: 0,
+    fromMax: 0,
+  });
+
   dataRef.current = data;
   winRef.current = isWinning;
   markersRef.current = showMarkers;
@@ -110,14 +121,45 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         i === pts.length - 1 ? { ...p, value: interpolatedLastVal } : p
       );
 
-      // Domain
+      // Domain — compute target bounds, then lerp toward them
       const vals = displayPts.map((p) => p.value);
       const minV = Math.min(...vals);
       const maxV = Math.max(...vals);
       const absMax = Math.max(Math.abs(minV), Math.abs(maxV));
       const pad = absMax * 0.25 || 5;
-      const domMin = Math.min(minV, 0) - pad;
-      const domMax = Math.max(maxV, 0) + pad;
+      const targetDomMin = Math.min(minV, 0) - pad;
+      const targetDomMax = Math.max(maxV, 0) + pad;
+
+      const dom = domainRef.current;
+      if (dom.dispMin === null) {
+        // First frame — snap to target
+        dom.dispMin = targetDomMin;
+        dom.dispMax = targetDomMax;
+        dom.targetMin = targetDomMin;
+        dom.targetMax = targetDomMax;
+        dom.fromMin = targetDomMin;
+        dom.fromMax = targetDomMax;
+        dom.tickTime = now;
+      }
+
+      // Detect when target bounds change (new tick shifted the domain)
+      if (targetDomMin !== dom.targetMin || targetDomMax !== dom.targetMax) {
+        dom.fromMin = dom.dispMin;
+        dom.fromMax = dom.dispMax;
+        dom.targetMin = targetDomMin;
+        dom.targetMax = targetDomMax;
+        dom.tickTime = now;
+      }
+
+      // Lerp displayed domain toward target
+      const domElapsed = now - dom.tickTime;
+      const domT = Math.min(domElapsed / TICK_MS, 1);
+      const domEased = 1 - Math.pow(1 - domT, 3);
+      dom.dispMin = dom.fromMin + (dom.targetMin - dom.fromMin) * domEased;
+      dom.dispMax = dom.fromMax + (dom.targetMax - dom.fromMax) * domEased;
+
+      const domMin = dom.dispMin;
+      const domMax = dom.dispMax;
 
       const margin = 25;
       const toX = (i) => (i / (displayPts.length - 1)) * (w - margin * 2) + margin;
