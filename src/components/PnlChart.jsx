@@ -23,6 +23,14 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     tickTime: 0,      // timestamp when new tick arrived
   });
 
+  // X-axis lerp state: smoothly animate horizontal compression
+  const xLerpRef = useRef({
+    dispCount: 0,     // currently displayed point count (fractional)
+    targetCount: 0,
+    fromCount: 0,
+    tickTime: 0,
+  });
+
   // Domain lerp state: smoothly animate axis bounds
   const domainRef = useRef({
     dispMin: null,    // currently displayed domMin
@@ -161,8 +169,29 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMin = dom.dispMin;
       const domMax = dom.dispMax;
 
+      // X-axis lerp — smoothly animate horizontal compression as points are added
+      const xl = xLerpRef.current;
+      const targetCount = displayPts.length;
+      if (xl.dispCount === 0) {
+        xl.dispCount = targetCount;
+        xl.targetCount = targetCount;
+        xl.fromCount = targetCount;
+        xl.tickTime = now;
+      }
+      if (targetCount !== xl.targetCount) {
+        xl.fromCount = xl.dispCount;
+        xl.targetCount = targetCount;
+        xl.tickTime = now;
+      }
+      const xlElapsed = now - xl.tickTime;
+      const xlT = Math.min(xlElapsed / TICK_MS, 1);
+      const xlEased = 1 - Math.pow(1 - xlT, 3);
+      xl.dispCount = xl.fromCount + (xl.targetCount - xl.fromCount) * xlEased;
+
+      const dispCount = markers ? targetCount : Math.max(xl.dispCount, 2);
+
       const margin = 25;
-      const toX = (i) => (i / (displayPts.length - 1)) * (w - margin * 2) + margin;
+      const toX = (i) => (i / (dispCount - 1)) * (w - margin * 2) + margin;
       const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
 
       // Zero line
