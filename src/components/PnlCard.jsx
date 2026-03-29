@@ -106,8 +106,8 @@ export default function PnlCard({
       animate={{ borderColor }}
       style={{
         background: 'transparent',
-        backdropFilter: 'blur(10px) saturate(2.0) brightness(1.08)',
-        WebkitBackdropFilter: 'blur(10px) saturate(2.0) brightness(1.08)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         border: `1.5px solid ${borderColor}`,
       }}
       transition={{ duration: 0.4 }}

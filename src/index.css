@@ -21,8 +21,8 @@ body {
 /* Main glass card — high transparency, deep blur, luminous refraction edges */
 .liquid-glass {
   background: transparent;
-  backdrop-filter: blur(10px) saturate(2.0) brightness(1.08);
-  -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1.5px solid rgba(255, 255, 255, 0.35);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
@@ -32,8 +32,8 @@ body {
 /* Dark tile — black liquid glass with refraction highlight */
 .glass-tile {
   background: rgba(25, 25, 26, 0.78);
-  backdrop-filter: blur(8px) saturate(1.6) brightness(0.88);
-  -webkit-backdrop-filter: blur(8px) saturate(1.6) brightness(0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.18),
@@ -52,8 +52,8 @@ body {
 /* Spin button — liquid glass orb with refraction */
 .hit-orb {
   background: radial-gradient(circle at 35% 28%, rgba(109, 208, 169, 0.85) 0%, rgba(69, 184, 141, 0.75) 100%);
-  backdrop-filter: blur(4px) saturate(1.8);
-  -webkit-backdrop-filter: blur(4px) saturate(1.8);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border: 1.5px solid rgba(255, 255, 255, 0.35);
   box-shadow:
     0 8px 32px rgba(69, 184, 141, 0.4),
@@ -65,21 +65,23 @@ body {
 
 /* Glass button — liquid glass with interactive feel */
 .glass-btn {
-  background: transparent;
-  backdrop-filter: blur(6px) saturate(1.8) brightness(1.06);
-  -webkit-backdrop-filter: blur(6px) saturate(1.8) brightness(1.06);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.36);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.63),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.09),
+    0 1px 4px rgba(19, 19, 20, 0.04);
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .glass-btn:hover {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.45);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12),
+    0 1px 4px rgba(19, 19, 20, 0.04);
 }
 
 .glass-btn-active {
@@ -93,8 +95,8 @@ body {
 /* Glass green button — tinted liquid glass */
 .glass-btn-green {
   background: rgba(80, 190, 145, 0.65);
-  backdrop-filter: blur(5px) saturate(1.8) brightness(1.05);
-  -webkit-backdrop-filter: blur(5px) saturate(1.8) brightness(1.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   box-shadow:
     0 4px 0 rgba(55, 150, 115, 0.6),
@@ -106,8 +108,8 @@ body {
 /* Glass red button — tinted liquid glass */
 .glass-btn-red {
   background: rgba(235, 110, 145, 0.65);
-  backdrop-filter: blur(5px) saturate(1.8) brightness(1.05);
-  -webkit-backdrop-filter: blur(5px) saturate(1.8) brightness(1.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   box-shadow:
     0 4px 0 rgba(200, 85, 120, 0.6),
@@ -118,13 +120,14 @@ body {
 
 /* Glass close button — clear liquid glass */
 .glass-btn-close {
-  background: transparent;
-  backdrop-filter: blur(8px) saturate(2.0) brightness(1.08);
-  -webkit-backdrop-filter: blur(8px) saturate(2.0) brightness(1.08);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.36);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.63),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.09),
+    0 1px 4px rgba(19, 19, 20, 0.04);
 }
 
 /* Custom slider — glass thumb */
@@ -256,8 +259,8 @@ body {
 /* Glass tab nav — liquid glass container */
 .glass-nav {
   background: transparent;
-  backdrop-filter: blur(10px) saturate(2.0) brightness(1.08);
-  -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -267,8 +270,8 @@ body {
 /* Preset nav — slightly tinted trough */
 .glass-nav-dark {
   background: transparent;
-  backdrop-filter: blur(8px) saturate(1.8) brightness(1.04);
-  -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -277,8 +280,8 @@ body {
 /* Sliding pill — liquid glass interactive element */
 .sliding-pill {
   background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(4px) saturate(1.6);
-  -webkit-backdrop-filter: blur(4px) saturate(1.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
