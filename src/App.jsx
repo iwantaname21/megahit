@@ -39,27 +39,20 @@ export default function App() {
         animate={{ opacity: ready ? 1 : 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
-        <AnimatePresence mode="wait">
-          {currentScreen === 'play' && (
-            <motion.div key="play" {...screenVariants} className="flex-1 flex flex-col">
-              <PlayScreen />
-            </motion.div>
-          )}
-          {currentScreen === 'locking' && (
-            <motion.div key="locking" {...screenVariants} className="flex-1 flex flex-col">
-              <LockingScreen />
-            </motion.div>
-          )}
-          {currentScreen === 'trading' && (
-            <motion.div key="trading" {...screenVariants} className="flex-1 flex flex-col">
-              <TradingScreen />
-            </motion.div>
-          )}
-          {currentScreen === 'results' && (
-            <motion.div key="results" {...screenVariants} className="flex-1 flex flex-col">
-              <ResultsScreen />
-            </motion.div>
-          )}
+        <AnimatePresence mode="popLayout">
+          <motion.div
+            key={currentScreen}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="flex-1 flex flex-col"
+          >
+            {currentScreen === 'play' && <PlayScreen />}
+            {currentScreen === 'locking' && <LockingScreen />}
+            {currentScreen === 'trading' && <TradingScreen />}
+            {currentScreen === 'results' && <ResultsScreen />}
+          </motion.div>
         </AnimatePresence>
       </motion.div>
     </div>
