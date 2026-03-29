@@ -14,9 +14,11 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   const animRef = useRef(null);
   const pulseT = useRef(0);
 
-  // Smooth interpolation state for the trailing edge
-  const interpY = useRef(null); // current interpolated y-value (in data-space)
+  // Smooth interpolation: track display value + velocity for momentum-based animation
+  const interpVal = useRef(null);
+  const interpVel = useRef(0);
   const lastDataLen = useRef(0);
+  const lastTickTime = useRef(0);
 
   dataRef.current = data;
   winRef.current = isWinning;
@@ -44,9 +46,12 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    const LERP_SPEED = 0.35; // fast chase for smooth continuous feel
+    let prevFrameTime = 0;
 
-    const draw = () => {
+    const draw = (now) => {
+      const frameDt = prevFrameTime ? Math.min((now - prevFrameTime) / 1000, 0.05) : 0.016;
+      prevFrameTime = now;
+
       const d = dataRef.current;
       const winning = winRef.current;
       const markers = markersRef.current;
@@ -75,18 +80,41 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         pts = d.filter((_, i) => i % step === 0 || i === d.length - 1);
       }
 
-      // Interpolate the last value for smoothness
-      const lastVal = pts[pts.length - 1].value;
-      if (interpY.current === null || d.length <= 2) {
-        interpY.current = lastVal;
+      // Spring-damper interpolation for the trailing edge value
+      // This creates smooth, continuous motion between data ticks
+      const targetVal = pts[pts.length - 1].value;
+      if (interpVal.current === null || d.length <= 2) {
+        interpVal.current = targetVal;
+        interpVel.current = 0;
       } else {
-        interpY.current += (lastVal - interpY.current) * LERP_SPEED;
+        // When new data arrives, estimate velocity from the last two real points
+        if (d.length !== lastDataLen.current && pts.length >= 2) {
+          const prev = pts[pts.length - 2].value;
+          const curr = pts[pts.length - 1].value;
+          // Blend new velocity with existing for smoother transitions
+          interpVel.current = interpVel.current * 0.3 + (curr - prev) * 0.7;
+        }
+
+        // Spring physics: chase target with damped spring
+        const stiffness = 12; // how fast it pulls toward target
+        const damping = 6;    // how much velocity is dampened
+        const diff = targetVal - interpVal.current;
+        const springForce = diff * stiffness;
+        interpVel.current += (springForce - interpVel.current * damping) * frameDt;
+        interpVal.current += interpVel.current * frameDt;
+
+        // Snap when very close
+        if (Math.abs(diff) < 0.005 && Math.abs(interpVel.current) < 0.01) {
+          interpVal.current = targetVal;
+          interpVel.current = 0;
+        }
       }
       lastDataLen.current = d.length;
 
-      // Build display array with interpolated tail
+      // Build display array: all real points except last, plus smoothed trailing value
+      // Also add a virtual "leading" point slightly ahead for continuous feel
       const displayPts = pts.map((p, i) =>
-        i === pts.length - 1 ? { ...p, value: interpY.current } : p
+        i === pts.length - 1 ? { ...p, value: interpVal.current } : p
       );
 
       // Domain
