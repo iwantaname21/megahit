@@ -109,11 +109,20 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const eased = 1 - Math.pow(1 - t, 3);
       const interpolatedLastVal = lerp.fromVal + (lerp.toVal - lerp.fromVal) * eased;
 
-      // Downsample to max 200 points
-      let pts = d;
-      if (d.length > 200) {
-        const step = Math.ceil(d.length / 200);
-        pts = d.filter((_, i) => i % step === 0 || i === d.length - 1);
+      // Live mode: sliding window of last WINDOW_SIZE points (scrolls left)
+      // Results mode: show all points (full history)
+      const WINDOW_SIZE = 60; // ~12 seconds of data at 200ms ticks
+      let pts;
+      if (markers) {
+        // Results screen — show everything, downsample if needed
+        pts = d;
+        if (d.length > 200) {
+          const step = Math.ceil(d.length / 200);
+          pts = d.filter((_, i) => i % step === 0 || i === d.length - 1);
+        }
+      } else {
+        // Live — take last WINDOW_SIZE points
+        pts = d.length > WINDOW_SIZE ? d.slice(d.length - WINDOW_SIZE) : d;
       }
 
       // Replace last point's value with interpolated value (only in live mode)
@@ -149,15 +158,22 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMin = dom.dispMin;
       const domMax = dom.dispMax;
 
-      // X-axis: last point always pinned to right margin, earlier points spread evenly
       const margin = 25;
       const chartW = w - margin * 2;
       const n = displayPts.length;
-      const toX = (i) => {
-        if (n <= 1) return margin + chartW / 2;
-        // Pin last point to the right edge; spread others evenly to the left
-        return margin + (i / (n - 1)) * chartW;
-      };
+      let toX;
+      if (markers) {
+        // Results: spread all points evenly across full width
+        toX = (i) => n <= 1 ? margin + chartW / 2 : margin + (i / (n - 1)) * chartW;
+      } else {
+        // Live: fixed spacing, last point pinned right, scrolls left
+        const spacing = chartW / (WINDOW_SIZE - 1);
+        toX = (i) => {
+          // Last point at right edge, earlier points at fixed intervals to the left
+          const fromRight = (n - 1 - i) * spacing;
+          return margin + chartW - fromRight;
+        };
+      }
       const toY = (v) => {
         const y = h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
         return Math.max(4, Math.min(h - 4, y)); // clamp within chart bounds
