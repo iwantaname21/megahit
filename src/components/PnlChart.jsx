@@ -80,7 +80,8 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMin = Math.min(minV, 0) - pad;
       const domMax = Math.max(maxV, 0) + pad;
 
-      const toX = (i) => (i / (displayPts.length - 1)) * (w - 40) + 4;
+      const margin = 25;
+      const toX = (i) => (i / (displayPts.length - 1)) * (w - margin * 2) + margin;
       const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
 
       // Zero line
@@ -156,52 +157,64 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Markers for results screen
+      // Markers for results screen — entry=red, exit=green
       if (markers) {
+        // Entry dot (red)
         ctx.beginPath();
         ctx.arc(xArr[0], yArr[0], 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#6DD0A9';
+        ctx.fillStyle = '#FF8AA8';
         ctx.fill();
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // Exit dot (green)
         ctx.beginPath();
         ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF8AA8';
+        ctx.fillStyle = '#6DD0A9';
         ctx.fill();
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.stroke();
       }
 
-      // Pulsing yellow sun dot at current price (live mode only)
+      // Holographic RGB dot at current price (live mode only)
       if (!markers && displayPts.length > 2) {
-        pulseT.current += 0.05;
-        const pulse = Math.sin(pulseT.current);
+        pulseT.current += 0.03;
+        const t = pulseT.current;
+        const pulse = Math.sin(t * 1.7);
 
-        // Outer glow — large soft golden halo
-        const glowR = 16 + pulse * 5;
-        const glowA = 0.1 + pulse * 0.04;
+        // Cycle hue over time for holographic RGB effect
+        const hue = (t * 60) % 360;
+        const hue2 = (hue + 120) % 360;
+        const hue3 = (hue + 240) % 360;
+
+        // Outer glow — shifting color halo
+        const glowR = 16 + pulse * 4;
         ctx.beginPath();
         ctx.arc(lastX, lastY, glowR, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${glowA})`;
+        ctx.fillStyle = `hsla(${hue}, 100%, 75%, ${0.12 + pulse * 0.04})`;
         ctx.fill();
 
-        // Mid glow ring — warm yellow
-        const midR = 10 + pulse * 2.5;
+        // Mid ring — second hue offset
+        const midR = 10 + pulse * 2;
         ctx.beginPath();
         ctx.arc(lastX, lastY, midR, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 225, 50, ${0.16 + pulse * 0.06})`;
+        ctx.fillStyle = `hsla(${hue2}, 100%, 70%, ${0.18 + pulse * 0.05})`;
         ctx.fill();
 
-        // Core dot — bright yellow-white
+        // Inner ring — third hue offset
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 6.5, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${hue3}, 100%, 80%, 0.25)`;
+        ctx.fill();
+
+        // Core dot — bright white with colored shadow
         ctx.beginPath();
         ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFE832';
-        ctx.fill();
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.9)';
-        ctx.shadowBlur = 14;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = `hsla(${hue}, 100%, 65%, 0.9)`;
+        ctx.shadowBlur = 16;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -221,10 +234,10 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       />
       {showMarkers && data && data.length > 1 && (
         <div className="flex justify-between mt-1">
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#6DD0A9' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#FF8AA8' }}>
             ● ENTRY
           </span>
-          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#FF8AA8' }}>
+          <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#6DD0A9' }}>
             EXIT ●
           </span>
         </div>
