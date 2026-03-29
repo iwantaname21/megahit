@@ -44,7 +44,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    const LERP_SPEED = 0.18; // how fast to chase the target (0-1, higher = faster)
+    const LERP_SPEED = 0.35; // fast chase for smooth continuous feel
 
     const draw = () => {
       const d = dataRef.current;

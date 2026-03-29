@@ -5,7 +5,7 @@ export const BASE_PRICES = {
 };
 
 export const ASSETS = ['BTC', 'ETH', 'SOL'];
-export const LEVERAGES = [500, 600, 700, 800, 900, 1000];
+export const LEVERAGES = [500, 600, 700, 800, 900, 1000]; // used for spinning display only
 export const SIDES = ['LONG', 'SHORT'];
 
 export function getEntryPrice(asset) {
@@ -17,7 +17,7 @@ export function getEntryPrice(asset) {
 export function randomizeParams() {
   return {
     asset: ASSETS[Math.floor(Math.random() * ASSETS.length)],
-    leverage: LEVERAGES[Math.floor(Math.random() * LEVERAGES.length)],
+    leverage: Math.floor(Math.random() * 501) + 500, // 500-1000 inclusive, any integer
     side: SIDES[Math.floor(Math.random() * SIDES.length)],
   };
 }

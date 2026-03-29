@@ -152,11 +152,11 @@ export default function LockingScreen() {
     return () => timeoutsRef.current.forEach(clearTimeout);
   }, []);
 
-  // Speeds in px/second — time-based, consistent on all devices
+  // Speeds in px/second — all fast, slight variation for visual interest
   const reels = [
-    { label: 'ASSET', strip: ASSET_STRIP, speed: 270 },
+    { label: 'ASSET', strip: ASSET_STRIP, speed: 360 },
     { label: 'LEVERAGE', strip: LEVERAGE_STRIP, speed: 370 },
-    { label: 'SIDE', strip: SIDE_STRIP, speed: 200 },
+    { label: 'SIDE', strip: SIDE_STRIP, speed: 340 },
   ];
 
   return (

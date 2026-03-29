@@ -97,7 +97,7 @@ export default function PnlCard({
 }) {
   const color = isWinning ? '#6DD0A9' : '#FF8AA8';
   const glowClass = '';
-  const tintBg = isWinning ? 'rgba(109,208,169,0.05)' : 'rgba(255,138,168,0.06)';
+  const tintBg = isWinning ? 'rgba(109,208,169,0.08)' : 'rgba(255,138,168,0.09)';
   const borderColor = isWinning ? 'rgba(109,208,169,0.35)' : 'rgba(255,138,168,0.35)';
 
   return (
