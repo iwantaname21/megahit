@@ -156,7 +156,7 @@ export default function LockingScreen() {
             className="font-bold uppercase text-[10px] tracking-widest block mb-2"
             style={{ color: 'rgba(19,19,20,0.4)' }}
           >
-            STAKE
+            {[10, 50, 100].includes(Math.round(betAmount)) ? 'STAKE' : 'CUSTOM STAKE'}
           </span>
           <span className="font-black text-5xl tracking-tight text-[#131314]">
             ${betAmount.toFixed(2)}
