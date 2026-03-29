@@ -35,13 +35,13 @@ export default function PlayScreen() {
 
             {/* Glass card with tiles + betting */}
             <div
-              className="liquid-glass rounded-2xl p-6 border mb-5"
+              className="liquid-glass rounded-2xl p-6 border mb-5 relative overflow-hidden"
               style={{ borderColor: 'rgba(255,255,255,0.3)' }}
             >
-              {/* Subtle gradient accent */}
+              {/* Subtle gradient accent — contained within card */}
               <div
-                className="absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl pointer-events-none"
-                style={{ background: 'rgba(109,208,169,0.06)' }}
+                className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(109,208,169,0.08) 0%, transparent 70%)' }}
               />
 
               {/* Tiles (placeholder) */}

@@ -80,7 +80,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMin = Math.min(minV, 0) - pad;
       const domMax = Math.max(maxV, 0) + pad;
 
-      const toX = (i) => (i / (displayPts.length - 1)) * (w - 8) + 4;
+      const toX = (i) => (i / (displayPts.length - 1)) * (w - 40) + 4;
       const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
 
       // Zero line
@@ -175,33 +175,33 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         ctx.stroke();
       }
 
-      // Pulsing white sun dot at current price (live mode only)
+      // Pulsing yellow sun dot at current price (live mode only)
       if (!markers && displayPts.length > 2) {
         pulseT.current += 0.05;
         const pulse = Math.sin(pulseT.current);
 
-        // Outer glow — large soft halo
-        const glowR = 14 + pulse * 4;
-        const glowA = 0.12 + pulse * 0.05;
+        // Outer glow — large soft golden halo
+        const glowR = 16 + pulse * 5;
+        const glowA = 0.1 + pulse * 0.04;
         ctx.beginPath();
         ctx.arc(lastX, lastY, glowR, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${glowA})`;
+        ctx.fillStyle = `rgba(255, 215, 0, ${glowA})`;
         ctx.fill();
 
-        // Mid glow ring
-        const midR = 9 + pulse * 2;
+        // Mid glow ring — warm yellow
+        const midR = 10 + pulse * 2.5;
         ctx.beginPath();
         ctx.arc(lastX, lastY, midR, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.18 + pulse * 0.06})`;
+        ctx.fillStyle = `rgba(255, 225, 50, ${0.16 + pulse * 0.06})`;
         ctx.fill();
 
-        // Core dot — solid white
+        // Core dot — bright yellow-white
         ctx.beginPath();
         ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = '#FFE832';
         ctx.fill();
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
-        ctx.shadowBlur = 12;
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.9)';
+        ctx.shadowBlur = 14;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
