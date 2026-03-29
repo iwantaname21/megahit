@@ -163,11 +163,8 @@ export default function ResultsScreen() {
             borderColor: isWin ? 'rgba(109,208,169,0.25)' : 'rgba(255,138,168,0.25)',
           }}
         >
-          {/* Chart */}
-          <ResultChart pnlHistory={pnlHistory} />
-
-          {/* Result badge */}
-          <div className="flex justify-center mt-4 mb-3">
+          {/* Result badge — top, like status row in live */}
+          <div className="flex justify-center mb-4">
             <motion.span
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -182,8 +179,13 @@ export default function ResultsScreen() {
             </motion.span>
           </div>
 
-          {/* PnL amount */}
-          <div className="flex flex-col items-center mb-5">
+          {/* Chart — below badge, above PnL number */}
+          <div className="mb-3">
+            <ResultChart pnlHistory={pnlHistory} />
+          </div>
+
+          {/* PnL amount — below chart */}
+          <div className="flex flex-col items-center mb-4">
             <motion.h1
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

@@ -170,17 +170,17 @@ export default function PnlCard({
         </div>
       </div>
 
-      {/* PnL amount — smooth rolling numbers */}
-      <div className="relative z-10 flex flex-col items-center mb-3">
+      {/* Chart — above the PnL number */}
+      <div className="relative z-10 mb-3">
+        <PnlChart data={pnlHistory} isWinning={isWinning} height={110} milestone={milestone} pnlPercent={pnlPercent} />
+      </div>
+
+      {/* PnL amount — below the chart */}
+      <div className="relative z-10 flex flex-col items-center mb-4">
         <SmoothNumber value={currentPnl} color={color} />
         <div className="flex items-center gap-1 mt-1">
           <SmoothPercent value={pnlPercent} color={color} />
         </div>
-      </div>
-
-      {/* Chart */}
-      <div className="relative z-10 mb-5">
-        <PnlChart data={pnlHistory} isWinning={isWinning} height={110} milestone={milestone} pnlPercent={pnlPercent} />
       </div>
 
       {/* Stats bottom bar */}
