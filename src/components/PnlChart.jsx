@@ -95,44 +95,34 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Smooth line with cubic bezier (Catmull-Rom to Bezier)
+      // Draw line + fill onto offscreen canvas, then composite with edge fade
       const color = winning ? '#6DD0A9' : '#FF8AA8';
       const rgb = winning ? '109,208,169' : '255,138,168';
 
       const xArr = displayPts.map((_, i) => toX(i));
       const yArr = displayPts.map((p) => toY(p.value));
 
-      ctx.beginPath();
-      ctx.moveTo(xArr[0], yArr[0]);
+      // --- Offscreen canvas for line + fill ---
+      const off = document.createElement('canvas');
+      off.width = w * dpr;
+      off.height = h * dpr;
+      const oc = off.getContext('2d');
+      oc.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      // Build path
+      oc.beginPath();
+      oc.moveTo(xArr[0], yArr[0]);
       if (displayPts.length === 2) {
-        ctx.lineTo(xArr[1], yArr[1]);
+        oc.lineTo(xArr[1], yArr[1]);
       } else {
-        // Use monotone cubic interpolation for smooth, non-overshooting curves
         for (let i = 0; i < displayPts.length - 1; i++) {
-          const x0 = xArr[i];
-          const y0 = yArr[i];
-          const x1 = xArr[i + 1];
-          const y1 = yArr[i + 1];
-
-          // Tension-based control points
+          const x0 = xArr[i], y0 = yArr[i];
+          const x1 = xArr[i + 1], y1 = yArr[i + 1];
           const tension = 0.3;
           let dx0 = 0, dy0 = 0, dx1 = 0, dy1 = 0;
-
-          if (i > 0) {
-            dx0 = (xArr[i + 1] - xArr[i - 1]) * tension;
-            dy0 = (yArr[i + 1] - yArr[i - 1]) * tension;
-          }
-          if (i + 2 < displayPts.length) {
-            dx1 = (xArr[i + 2] - xArr[i]) * tension;
-            dy1 = (yArr[i + 2] - yArr[i]) * tension;
-          }
-
-          ctx.bezierCurveTo(
-            x0 + dx0, y0 + dy0,
-            x1 - dx1, y1 - dy1,
-            x1, y1
-          );
+          if (i > 0) { dx0 = (xArr[i+1] - xArr[i-1]) * tension; dy0 = (yArr[i+1] - yArr[i-1]) * tension; }
+          if (i + 2 < displayPts.length) { dx1 = (xArr[i+2] - xArr[i]) * tension; dy1 = (yArr[i+2] - yArr[i]) * tension; }
+          oc.bezierCurveTo(x0 + dx0, y0 + dy0, x1 - dx1, y1 - dy1, x1, y1);
         }
       }
 
@@ -140,45 +130,43 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const lastX = xArr[lastIdx];
       const lastY = yArr[lastIdx];
 
-      // Stroke
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2.5;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-      ctx.stroke();
+      // Stroke line
+      oc.strokeStyle = color;
+      oc.lineWidth = 2.5;
+      oc.lineJoin = 'round';
+      oc.lineCap = 'round';
+      oc.stroke();
 
-      // Gradient fill — vertical fade + horizontal edge fade
-      ctx.lineTo(lastX, h);
-      ctx.lineTo(xArr[0], h);
-      ctx.closePath();
-
-      // First fill with vertical gradient
-      const vertGrad = ctx.createLinearGradient(0, 0, 0, h);
-      vertGrad.addColorStop(0, `rgba(${rgb}, 0.24)`);
-      vertGrad.addColorStop(0.7, `rgba(${rgb}, 0.06)`);
+      // Fill area under line
+      oc.lineTo(lastX, h);
+      oc.lineTo(xArr[0], h);
+      oc.closePath();
+      const vertGrad = oc.createLinearGradient(0, 0, 0, h);
+      vertGrad.addColorStop(0, `rgba(${rgb}, 0.38)`);
+      vertGrad.addColorStop(0.5, `rgba(${rgb}, 0.15)`);
+      vertGrad.addColorStop(0.85, `rgba(${rgb}, 0.03)`);
       vertGrad.addColorStop(1, `rgba(${rgb}, 0.0)`);
-      ctx.fillStyle = vertGrad;
-      ctx.fill();
+      oc.fillStyle = vertGrad;
+      oc.fill();
 
-      // Apply horizontal edge fade using destination-out compositing
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-out';
-      const fadeW = w * 0.18;
+      // Erase edges on offscreen canvas — fades line AND fill together
+      oc.globalCompositeOperation = 'destination-out';
+      const fadeW = w * 0.15;
 
-      // Left edge fade
-      const leftFade = ctx.createLinearGradient(0, 0, fadeW, 0);
-      leftFade.addColorStop(0, 'rgba(0,0,0,0.85)');
+      const leftFade = oc.createLinearGradient(0, 0, fadeW, 0);
+      leftFade.addColorStop(0, 'rgba(0,0,0,1)');
       leftFade.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = leftFade;
-      ctx.fillRect(0, 0, fadeW, h);
+      oc.fillStyle = leftFade;
+      oc.fillRect(0, 0, fadeW, h);
 
-      // Right edge fade
-      const rightFade = ctx.createLinearGradient(w - fadeW, 0, w, 0);
+      const rightFade = oc.createLinearGradient(w - fadeW, 0, w, 0);
       rightFade.addColorStop(0, 'rgba(0,0,0,0)');
-      rightFade.addColorStop(1, 'rgba(0,0,0,0.85)');
-      ctx.fillStyle = rightFade;
-      ctx.fillRect(w - fadeW, 0, fadeW, h);
-      ctx.restore();
+      rightFade.addColorStop(1, 'rgba(0,0,0,1)');
+      oc.fillStyle = rightFade;
+      oc.fillRect(w - fadeW, 0, fadeW, h);
+
+      // Composite offscreen result onto main canvas
+      ctx.drawImage(off, 0, 0, w * dpr, h * dpr, 0, 0, w, h);
 
       // Markers for results screen — entry=red, exit=green
       if (markers) {
