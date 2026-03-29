@@ -28,7 +28,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center" style={{ backgroundColor: '#E8E4E0' }}>
+    <div className="min-h-screen w-full flex flex-col items-center" style={{ backgroundColor: '#2A2D33' }}>
       {/* Animated ocean background */}
       <OceanBackground />
 

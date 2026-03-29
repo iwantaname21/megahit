@@ -190,7 +190,7 @@ export default function PlayScreen() {
                 className="mt-5 font-bold uppercase text-[10px] tracking-[0.2em]"
                 style={{ color: 'rgba(19,19,20,0.35)' }}
               >
-                Press ✚ to spin.
+                Press ✚ to spin
               </span>
             </div>
 

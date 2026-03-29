@@ -26,9 +26,9 @@ export default function OceanBackground() {
 
       // Sky gradient — warm top fading to ocean
       const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-      skyGrad.addColorStop(0, '#E8E4E0');    // warm cream
-      skyGrad.addColorStop(0.35, '#DDD8D3'); // soft warm gray
-      skyGrad.addColorStop(0.5, '#A8B5C4');  // horizon blue-gray (darker)
+      skyGrad.addColorStop(0, '#2A2D33');    // dark evening gray
+      skyGrad.addColorStop(0.25, '#3A3E47'); // mid gray
+      skyGrad.addColorStop(0.5, '#4A5565');  // horizon dark blue-gray
       skyGrad.addColorStop(0.55, '#6D8FA8'); // water starts (30% darker)
       skyGrad.addColorStop(0.7, '#4A6D8A');  // mid ocean (30% darker)
       skyGrad.addColorStop(0.85, '#335869'); // deeper (30% darker)
