@@ -46,15 +46,21 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const w = Math.round(rect.width);
       const h = Math.round(rect.height);
 
-      // Only resize canvas when dimensions actually change (avoids GPU texture reset)
-      if (sizeRef.current.w !== w || sizeRef.current.h !== h) {
+      // Ensure offscreen canvas exists
+      if (!offRef.current) offRef.current = document.createElement('canvas');
+
+      // Only resize canvases when dimensions actually change
+      if (w > 0 && h > 0 && (sizeRef.current.w !== w || sizeRef.current.h !== h)) {
         canvas.width = w * dpr;
         canvas.height = h * dpr;
-        sizeRef.current = { w, h };
-        // Also resize cached offscreen canvas
-        if (!offRef.current) offRef.current = document.createElement('canvas');
         offRef.current.width = w * dpr;
         offRef.current.height = h * dpr;
+        sizeRef.current = { w, h };
+      }
+
+      if (w === 0 || h === 0) {
+        animRef.current = requestAnimationFrame(draw);
+        return;
       }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
