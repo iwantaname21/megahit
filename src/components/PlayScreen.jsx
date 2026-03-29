@@ -120,20 +120,10 @@ export default function PlayScreen() {
                 </div>
               </div>
 
-              {/* Slider */}
+              {/* Slider — glass track */}
               <div className="relative w-full flex items-center mb-6" style={{ height: '32px' }}>
-                <div
-                  className="absolute w-full rounded-full"
-                  style={{ height: '6px', background: 'rgba(19,19,20,0.08)' }}
-                />
-                <div
-                  className="absolute rounded-full"
-                  style={{
-                    height: '6px',
-                    width: `${sliderPct}%`,
-                    background: 'linear-gradient(90deg, #6DD0A9, #8befc6)',
-                  }}
-                />
+                <div className="absolute w-full rounded-full slider-track" style={{ height: '6px' }} />
+                <div className="absolute rounded-full slider-fill" style={{ height: '6px', width: `${sliderPct}%` }} />
                 <input
                   type="range"
                   min={1}
@@ -145,19 +135,16 @@ export default function PlayScreen() {
                 />
               </div>
 
-              {/* Preset pills — always visible, none highlighted if custom */}
+              {/* Preset pills — glass buttons */}
               <div className="flex gap-3">
                 {[10, 50, 100].map((preset) => (
                   <motion.button
                     key={preset}
                     onClick={() => setBetAmount(Math.min(preset, balance))}
-                    className="flex-1 py-3 rounded-full font-bold text-sm"
-                    style={{
-                      border: '1px solid rgba(19,19,20,0.1)',
-                      background: Math.round(betAmount) === preset ? 'rgba(109,208,169,0.15)' : 'rgba(255,255,255,0.35)',
-                      backdropFilter: 'blur(8px)',
-                      color: Math.round(betAmount) === preset ? '#4BA889' : '#131314',
-                    }}
+                    className={`flex-1 py-3 rounded-full font-bold text-sm ${
+                      Math.round(betAmount) === preset ? 'glass-btn glass-btn-active' : 'glass-btn'
+                    }`}
+                    style={{ color: Math.round(betAmount) === preset ? '#4BA889' : '#131314' }}
                     {...springBounce}
                   >
                     ${preset}

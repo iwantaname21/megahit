@@ -263,11 +263,7 @@ export default function ResultsScreen() {
             whileTap={{ scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
             onClick={spinAgain}
-            className="w-full h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase text-white"
-            style={{
-              background: '#6DD0A9',
-              boxShadow: '0 4px 0 #4BA889, 0 8px 20px rgba(109,208,169,0.3)',
-            }}
+            className="glass-btn-green w-full h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase text-white"
           >
             SPIN AGAIN
           </motion.button>
@@ -277,13 +273,7 @@ export default function ResultsScreen() {
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={spinAgain}
-              className="rounded-2xl font-extrabold text-sm tracking-widest uppercase"
-              style={{
-                background: 'rgba(255,255,255,0.5)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(19,19,20,0.1)',
-                color: '#131314',
-              }}
+              className="glass-btn rounded-2xl font-extrabold text-sm tracking-widest uppercase text-[#131314]"
             >
               HOME
             </motion.button>
@@ -292,13 +282,7 @@ export default function ResultsScreen() {
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={handleShare}
-              className="rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-2"
-              style={{
-                background: 'rgba(255,255,255,0.5)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(19,19,20,0.1)',
-                color: '#131314',
-              }}
+              className="glass-btn rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-2 text-[#131314]"
             >
               <span className="material-symbols-outlined text-base">share</span>
               SHARE

@@ -274,11 +274,7 @@ export default function TradingScreen() {
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={handleDouble}
               disabled={!canDouble}
-              className="rounded-2xl flex items-center justify-center gap-2 font-extrabold text-sm tracking-widest uppercase text-white"
-              style={{
-                background: canDouble ? '#6DD0A9' : 'rgba(109,208,169,0.3)',
-                boxShadow: canDouble ? '0 4px 0 #4BA889' : 'none',
-              }}
+              className={`glass-btn-green rounded-2xl flex items-center justify-center gap-2 font-extrabold text-sm tracking-widest uppercase text-white ${!canDouble ? 'opacity-40' : ''}`}
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
                 add
@@ -290,8 +286,7 @@ export default function TradingScreen() {
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={handleHalf}
-              className="rounded-2xl flex items-center justify-center font-extrabold text-sm tracking-widest uppercase text-white"
-              style={{ background: '#FF8AA8', boxShadow: '0 4px 0 #D96E8A' }}
+              className="glass-btn-red rounded-2xl flex items-center justify-center font-extrabold text-sm tracking-widest uppercase text-white"
             >
               50%
             </motion.button>
@@ -302,13 +297,7 @@ export default function TradingScreen() {
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
             onClick={handleClose}
-            className="w-full h-16 rounded-2xl flex items-center justify-center gap-3 font-extrabold text-sm tracking-[0.15em] uppercase"
-            style={{
-              background: 'rgba(255,255,255,0.6)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(19,19,20,0.12)',
-              boxShadow: '0 8px 24px rgba(19,19,20,0.08)',
-            }}
+            className="glass-btn-close w-full h-16 rounded-2xl flex items-center justify-center gap-3 font-extrabold text-sm tracking-[0.15em] uppercase"
           >
             <span className="text-[#131314]">✕ CLOSE</span>
             <span style={{ color }}>{pnlStr}</span>
