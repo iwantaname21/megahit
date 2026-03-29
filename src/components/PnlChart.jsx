@@ -175,25 +175,35 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         ctx.stroke();
       }
 
-      // Pulsing red dot at current price (live mode only)
+      // Pulsing white sun dot at current price (live mode only)
       if (!markers && displayPts.length > 2) {
         pulseT.current += 0.05;
         const pulse = Math.sin(pulseT.current);
-        const ringR = 8 + pulse * 4;
-        const ringA = 0.18 + pulse * 0.08;
 
+        // Outer glow — large soft halo
+        const glowR = 14 + pulse * 4;
+        const glowA = 0.12 + pulse * 0.05;
         ctx.beginPath();
-        ctx.arc(lastX, lastY, ringR, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 77, 77, ${ringA})`;
+        ctx.arc(lastX, lastY, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${glowA})`;
         ctx.fill();
 
+        // Mid glow ring
+        const midR = 9 + pulse * 2;
         ctx.beginPath();
-        ctx.arc(lastX, lastY, 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF4D4D';
+        ctx.arc(lastX, lastY, midR, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.18 + pulse * 0.06})`;
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+
+        // Core dot — solid white
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 12;
+        ctx.fill();
+        ctx.shadowBlur = 0;
       }
 
       animRef.current = requestAnimationFrame(draw);
