@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useGameStore from '../store';
 import Header from './Header';
 import TileTriplet from './TileTriplet';
+import { hapticLight, hapticSlider } from '../lib/haptics';
 import HistoryView from './HistoryView';
 
 const springBounce = {
@@ -15,8 +16,16 @@ export default function PlayScreen() {
   const { balance, betAmount, setBetAmount, startSpin, activeTab, setActiveTab, tradeHistory } = useGameStore();
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
+  const lastSliderHaptic = useRef(0);
   const handleSlider = (e) => {
-    setBetAmount(parseFloat(e.target.value));
+    const val = parseFloat(e.target.value);
+    setBetAmount(val);
+    // Haptic every ~30ms while dragging
+    const now = Date.now();
+    if (now - lastSliderHaptic.current > 30) {
+      hapticSlider();
+      lastSliderHaptic.current = now;
+    }
   };
 
   const sliderPct = balance > 0 ? (betAmount / balance) * 100 : 0;
@@ -158,7 +167,7 @@ export default function PlayScreen() {
                 {[10, 50, 100].map((preset) => (
                   <button
                     key={preset}
-                    onClick={() => setBetAmount(Math.min(preset, balance))}
+                    onClick={() => { hapticLight(); setBetAmount(Math.min(preset, balance)); }}
                     className={`relative z-10 flex-1 py-2.5 rounded-full font-bold text-sm transition-colors duration-200 ${
                       Math.round(betAmount) === preset ? 'text-[#131314]' : 'text-[#131314]/40'
                     }`}
@@ -176,7 +185,7 @@ export default function PlayScreen() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.88 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                onClick={startSpin}
+                onClick={() => { hapticLight(); startSpin(); }}
                 disabled={!canSpin}
                 style={{ opacity: canSpin ? 1 : 0.4, willChange: 'transform' }}
               >

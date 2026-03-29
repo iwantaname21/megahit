@@ -4,6 +4,7 @@ import useGameStore from '../store';
 import Header from './Header';
 import PnlChart from './PnlChart';
 import { formatCurrency, formatPrice, formatDuration } from '../lib/simulation';
+import { hapticLight } from '../lib/haptics';
 
 const REVEAL_DELAY = 400;
 
@@ -236,7 +237,7 @@ export default function ResultsScreen() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-            onClick={spinAgain}
+            onClick={() => { hapticLight(); spinAgain(); }}
             className="glass-btn-green w-full h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase text-white"
           >
             SPIN AGAIN
@@ -246,7 +247,7 @@ export default function ResultsScreen() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              onClick={spinAgain}
+              onClick={() => { hapticLight(); spinAgain(); }}
               className="glass-btn rounded-2xl font-extrabold text-sm tracking-widest uppercase text-[#131314]"
             >
               HOME
@@ -255,7 +256,7 @@ export default function ResultsScreen() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              onClick={handleShare}
+              onClick={() => { hapticLight(); handleShare(); }}
               className="glass-btn rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-2 text-[#131314]"
             >
               <span className="material-symbols-outlined text-base">share</span>

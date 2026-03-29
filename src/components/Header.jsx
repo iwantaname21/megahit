@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { hapticLight } from '../lib/haptics';
 
 export default function Header({ showNav = false, activeTab, onTabChange }) {
   const tabs = [
@@ -14,7 +15,7 @@ export default function Header({ showNav = false, activeTab, onTabChange }) {
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => onTabChange?.(tab.key)}
+              onClick={() => { hapticLight(); onTabChange?.(tab.key); }}
               className={`relative z-10 px-6 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-colors duration-200 ${
                 activeTab === tab.key ? 'text-[#131314]' : 'text-[#131314]/40'
               }`}

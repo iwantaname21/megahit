@@ -4,6 +4,7 @@ import useGameStore from '../store';
 import Header from './Header';
 import PnlCard from './PnlCard';
 import { formatCurrency } from '../lib/simulation';
+import { hapticLight, hapticMedium, hapticPriceTick } from '../lib/haptics';
 
 const TICK_MS = 100;
 const MILESTONE_STEP = 3.5; // triggers more frequently (~30% easier to activate)
@@ -104,11 +105,27 @@ export default function TradingScreen() {
 
   const [cardFlash, setCardFlash] = useState(null);
   const cardFlashTimeoutRef = useRef(null);
+  const prevPnlRef = useRef(0);
+  const lastHapticTickRef = useRef(0);
 
   useEffect(() => {
     intervalRef.current = setInterval(tick, TICK_MS);
     return () => clearInterval(intervalRef.current);
   }, [tick]);
+
+  // Price tick haptic — every 200ms, strength based on PnL change magnitude
+  useEffect(() => {
+    const now = Date.now();
+    if (now - lastHapticTickRef.current < 200) return;
+    lastHapticTickRef.current = now;
+
+    const delta = Math.abs(currentPnl - prevPnlRef.current);
+    prevPnlRef.current = currentPnl;
+    if (originalBet > 0 && delta > 0) {
+      const magnitude = Math.min(delta / originalBet, 1); // normalize to 0-1
+      hapticPriceTick(magnitude);
+    }
+  }, [currentPnl, originalBet]);
 
   useEffect(() => {
     if (originalBet <= 0) return;
@@ -152,16 +169,19 @@ export default function TradingScreen() {
   }, []);
 
   const handleDouble = useCallback(() => {
+    hapticMedium();
     doubleDown();
     triggerCardFlash('green');
   }, [doubleDown, triggerCardFlash]);
 
   const handleHalf = useCallback(() => {
+    hapticMedium();
     closeHalf();
     triggerCardFlash('red');
   }, [closeHalf, triggerCardFlash]);
 
   const handleClose = useCallback(() => {
+    hapticLight();
     closePosition();
   }, [closePosition]);
 

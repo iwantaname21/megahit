@@ -167,7 +167,11 @@ const useGameStore = create((set, get) => ({
   },
 
   spinAgain: () => {
+    const { balance, betAmount } = get();
+    // Clamp bet to new balance so spin button works on next screen
+    const clampedBet = Math.min(betAmount, Math.max(balance, 1));
     set({
+      betAmount: clampedBet,
       asset: null,
       leverage: null,
       side: null,
