@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
+const TICK_MS = 200; // must match TradingScreen tick rate
+
 export default function PnlChart({ data, isWinning, showMarkers = false, height = 120, milestone = null }) {
   const canvasRef = useRef(null);
   const dataRef = useRef(data);
@@ -12,6 +14,14 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
   const offRef = useRef(null);
   const lastW = useRef(0);
   const lastH = useRef(0);
+
+  // Lerp state: smoothly animate the last data point between ticks
+  const lerpRef = useRef({
+    prevLen: 0,       // data.length at previous tick
+    fromVal: 0,       // value we're lerping FROM
+    toVal: 0,         // value we're lerping TO
+    tickTime: 0,      // timestamp when new tick arrived
+  });
 
   dataRef.current = data;
   winRef.current = isWinning;
@@ -38,7 +48,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    const draw = () => {
+    const draw = (now) => {
       const d = dataRef.current;
       const winning = winRef.current;
       const markers = markersRef.current;
@@ -48,7 +58,6 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const h = Math.round(rect.height);
       if (w === 0 || h === 0) { animRef.current = requestAnimationFrame(draw); return; }
 
-      // Resize only when dimensions change — setting canvas.width is expensive
       if (!offRef.current) offRef.current = document.createElement('canvas');
       if (w !== lastW.current || h !== lastH.current) {
         canvas.width = w * dpr;
@@ -71,6 +80,24 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         return;
       }
 
+      // --- Lerp logic: detect new tick, interpolate last point ---
+      const lerp = lerpRef.current;
+      if (d.length !== lerp.prevLen) {
+        // New data point arrived — start lerping from current interpolated position to new value
+        const prevLastVal = lerp.prevLen > 0 && d.length > 1 ? lerp.toVal : d[d.length - 1].value;
+        lerp.fromVal = lerp.prevLen === 0 ? d[d.length - 1].value : prevLastVal;
+        lerp.toVal = d[d.length - 1].value;
+        lerp.tickTime = now;
+        lerp.prevLen = d.length;
+      }
+
+      // Calculate lerp progress (0 to 1 over TICK_MS)
+      const elapsed = now - lerp.tickTime;
+      const t = Math.min(elapsed / TICK_MS, 1);
+      // Smooth easing (ease-out cubic)
+      const eased = 1 - Math.pow(1 - t, 3);
+      const interpolatedLastVal = lerp.fromVal + (lerp.toVal - lerp.fromVal) * eased;
+
       // Downsample to max 200 points
       let pts = d;
       if (d.length > 200) {
@@ -78,8 +105,13 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         pts = d.filter((_, i) => i % step === 0 || i === d.length - 1);
       }
 
+      // Replace last point's value with interpolated value (only in live mode)
+      const displayPts = markers ? pts : pts.map((p, i) =>
+        i === pts.length - 1 ? { ...p, value: interpolatedLastVal } : p
+      );
+
       // Domain
-      const vals = pts.map((p) => p.value);
+      const vals = displayPts.map((p) => p.value);
       const minV = Math.min(...vals);
       const maxV = Math.max(...vals);
       const absMax = Math.max(Math.abs(minV), Math.abs(maxV));
@@ -88,7 +120,7 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const domMax = Math.max(maxV, 0) + pad;
 
       const margin = 25;
-      const toX = (i) => (i / (pts.length - 1)) * (w - margin * 2) + margin;
+      const toX = (i) => (i / (displayPts.length - 1)) * (w - margin * 2) + margin;
       const toY = (v) => h - 4 - ((v - domMin) / (domMax - domMin)) * (h - 8);
 
       // Zero line
@@ -105,34 +137,34 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const color = winning ? '#6DD0A9' : '#FF8AA8';
       const rgb = winning ? '109,208,169' : '255,138,168';
 
-      const xArr = pts.map((_, i) => toX(i));
-      const yArr = pts.map((p) => toY(p.value));
+      const xArr = displayPts.map((_, i) => toX(i));
+      const yArr = displayPts.map((p) => toY(p.value));
 
       // --- Draw line + fill on cached offscreen canvas ---
       const off = offRef.current;
       const oc = off.getContext('2d');
-      oc.globalCompositeOperation = 'source-over'; // reset from previous frame's destination-out
+      oc.globalCompositeOperation = 'source-over';
       oc.setTransform(dpr, 0, 0, dpr, 0, 0);
       oc.clearRect(0, 0, w, h);
 
       // Build cubic bezier path
       oc.beginPath();
       oc.moveTo(xArr[0], yArr[0]);
-      if (pts.length === 2) {
+      if (displayPts.length === 2) {
         oc.lineTo(xArr[1], yArr[1]);
       } else {
-        for (let i = 0; i < pts.length - 1; i++) {
+        for (let i = 0; i < displayPts.length - 1; i++) {
           const x0 = xArr[i], y0 = yArr[i];
           const x1 = xArr[i + 1], y1 = yArr[i + 1];
           const tension = 0.3;
           let dx0 = 0, dy0 = 0, dx1 = 0, dy1 = 0;
           if (i > 0) { dx0 = (xArr[i+1] - xArr[i-1]) * tension; dy0 = (yArr[i+1] - yArr[i-1]) * tension; }
-          if (i + 2 < pts.length) { dx1 = (xArr[i+2] - xArr[i]) * tension; dy1 = (yArr[i+2] - yArr[i]) * tension; }
+          if (i + 2 < displayPts.length) { dx1 = (xArr[i+2] - xArr[i]) * tension; dy1 = (yArr[i+2] - yArr[i]) * tension; }
           oc.bezierCurveTo(x0 + dx0, y0 + dy0, x1 - dx1, y1 - dy1, x1, y1);
         }
       }
 
-      const lastIdx = pts.length - 1;
+      const lastIdx = displayPts.length - 1;
       const lastX = xArr[lastIdx];
       const lastY = yArr[lastIdx];
 
@@ -185,11 +217,11 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       }
 
       // Holographic dot (live mode)
-      if (!markers && pts.length > 2) {
+      if (!markers && displayPts.length > 2) {
         pulseT.current += 0.03;
-        const t = pulseT.current;
-        const pulse = Math.sin(t * 1.7);
-        const hue = (t * 60) % 360;
+        const pt = pulseT.current;
+        const pulse = Math.sin(pt * 1.7);
+        const hue = (pt * 60) % 360;
         const hue2 = (hue + 120) % 360;
         const hue3 = (hue + 240) % 360;
 
