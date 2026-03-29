@@ -45,7 +45,9 @@ const useGameStore = create((set, get) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
 
   startSpin: () => {
-    const { betAmount, balance } = get();
+    let { betAmount, balance } = get();
+    // Safety: ensure bet is valid
+    if (betAmount <= 0) betAmount = Math.min(50, balance);
     if (betAmount <= 0 || betAmount > balance) return;
 
     const params = randomizeParams();
