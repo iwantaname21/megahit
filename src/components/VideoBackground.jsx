@@ -1,54 +1,51 @@
-import React, { useRef, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import useGameStore from '../store';
 
-const VIDEOS = {
-  calm: 'https://drive.google.com/uc?export=download&id=1DgkaoVKDer-1gEj8yOD5KhuD6KdH_kOF',
-  sleepy: 'https://drive.google.com/uc?export=download&id=1upElp_xvVemrUhcg6KZ5vPbe4O8a8Tdx',
+const YOUTUBE_IDS = {
+  calm: '1grXZtsdHmI',
+  sleepy: '4Yw3Kh8bBDo',
 };
 
 export default function VideoBackground() {
   const bgMode = useGameStore((s) => s.bgMode);
-  const videoRef = useRef(null);
-
-  // Ensure video plays on iOS Safari after mode switch
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
-  }, [bgMode]);
+  const videoId = YOUTUBE_IDS[bgMode];
 
   return (
     <div className="fixed inset-0" style={{ zIndex: 0 }}>
-      <AnimatePresence mode="popLayout">
-        <motion.video
+      {/* YouTube iframe — autoplay, muted, looped, no controls */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          width: '177.78vh', /* 16:9 ratio to cover viewport */
+          height: '100vh',
+          minWidth: '100vw',
+          minHeight: '56.25vw',
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none',
+        }}
+      >
+        <iframe
           key={bgMode}
-          ref={videoRef}
-          src={VIDEOS[bgMode]}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: 'easeInOut' }}
-          className="pointer-events-none"
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&fs=0&iv_load_policy=3&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+          allow="autoplay; encrypted-media"
+          allowFullScreen={false}
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
-            objectFit: 'cover',
-            minWidth: '100%',
-            minHeight: '100%',
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            pointerEvents: 'none',
           }}
+          title="Background video"
         />
-      </AnimatePresence>
+      </div>
 
-      {/* Dark overlay for sleepy mode to deepen the mood */}
+      {/* Dark overlay for sleepy mode */}
       <motion.div
         className="fixed inset-0 pointer-events-none"
         animate={{
