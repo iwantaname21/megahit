@@ -13,7 +13,7 @@ const springBounce = {
 };
 
 export default function PlayScreen() {
-  const { balance, betAmount, setBetAmount, startSpin, activeTab, setActiveTab, tradeHistory } = useGameStore();
+  const { balance, betAmount, setBetAmount, startSpin, activeTab, setActiveTab, tradeHistory, bgMode, toggleBgMode } = useGameStore();
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const isSliding = useRef(false); // true when change comes from slider, false from preset click
@@ -223,6 +223,27 @@ export default function PlayScreen() {
 
             {/* Bottom spacer */}
             <div className="flex-[4] min-h-[16px]" />
+
+            {/* Mode toggle — calm / storm */}
+            <div className="flex justify-center pb-4">
+              <motion.button
+                onClick={() => { hapticLight(); toggleBgMode(); }}
+                className="glass-btn rounded-full px-4 py-2 flex items-center gap-2"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.93 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
+                <span
+                  className="material-symbols-outlined text-base"
+                  style={{ color: bgMode === 'calm' ? '#6DD0A9' : '#9B8EC4' }}
+                >
+                  {bgMode === 'calm' ? 'wb_sunny' : 'nightlight'}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.6)' }}>
+                  {bgMode === 'calm' ? 'Calm' : 'Sleepy'}
+                </span>
+              </motion.button>
+            </div>
           </>
         ) : (
           <HistoryView trades={tradeHistory} />

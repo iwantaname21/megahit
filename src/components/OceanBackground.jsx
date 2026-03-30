@@ -64,25 +64,21 @@ export default function OceanBackground() {
       ctx.fillStyle = shimmerGrad;
       ctx.fillRect(0, horizonY, w, h - horizonY);
 
-      // Wave layers — each with different speed, amplitude, and color
+      // Wave layers — reduced for performance
       const waves = [
-        { y: horizonY + 2, amp: 3, freq: 0.008, speed: 0.7, color: 'rgba(155,181,201,0.3)' },
-        { y: horizonY + 8, amp: 4, freq: 0.006, speed: 0.5, color: 'rgba(120,170,195,0.25)' },
-        { y: horizonY + 18, amp: 5, freq: 0.01, speed: 0.9, color: 'rgba(106,155,181,0.2)' },
-        { y: horizonY + 35, amp: 6, freq: 0.007, speed: 0.6, color: 'rgba(90,140,170,0.2)' },
-        { y: horizonY + 55, amp: 7, freq: 0.012, speed: 1.1, color: 'rgba(74,125,150,0.15)' },
-        { y: horizonY + 80, amp: 8, freq: 0.005, speed: 0.4, color: 'rgba(58,107,130,0.15)' },
-        { y: horizonY + 110, amp: 6, freq: 0.009, speed: 0.8, color: 'rgba(58,107,130,0.1)' },
+        { y: horizonY + 4, amp: 4, freq: 0.007, speed: 0.6, color: 'rgba(140,175,200,0.28)' },
+        { y: horizonY + 25, amp: 6, freq: 0.009, speed: 0.8, color: 'rgba(100,150,180,0.2)' },
+        { y: horizonY + 55, amp: 7, freq: 0.006, speed: 0.5, color: 'rgba(74,125,150,0.15)' },
+        { y: horizonY + 95, amp: 7, freq: 0.008, speed: 0.7, color: 'rgba(58,107,130,0.12)' },
       ];
 
       for (const wave of waves) {
         ctx.beginPath();
         ctx.moveTo(0, h);
-        for (let x = 0; x <= w; x += 4) {
+        for (let x = 0; x <= w; x += 6) {
           const y = wave.y +
             Math.sin(x * wave.freq + t * wave.speed) * wave.amp +
-            Math.sin(x * wave.freq * 1.7 + t * wave.speed * 1.3 + 1.5) * wave.amp * 0.4 +
-            Math.sin(x * wave.freq * 0.5 + t * wave.speed * 0.7 + 3.0) * wave.amp * 0.6;
+            Math.sin(x * wave.freq * 1.5 + t * wave.speed * 1.2 + 1.5) * wave.amp * 0.5;
           ctx.lineTo(x, y);
         }
         ctx.lineTo(w, h);

@@ -2,3 +2,5 @@ node_modules
 dist
 .vite
 .vercel
+public/calm.mp4
+public/sleepy.mp4

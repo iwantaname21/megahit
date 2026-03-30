@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import useGameStore from './store';
-import OceanBackground from './components/OceanBackground';
+import VideoBackground from './components/VideoBackground';
 import PlayScreen from './components/PlayScreen';
 import LockingScreen from './components/LockingScreen';
 import TradingScreen from './components/TradingScreen';
@@ -28,9 +28,9 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center" style={{ backgroundColor: '#454950' }}>
-      {/* Animated ocean background */}
-      <OceanBackground />
+    <div className="min-h-screen w-full flex flex-col items-center" style={{ backgroundColor: '#1a1a1a' }}>
+      {/* Video background — calm or storm mode */}
+      <VideoBackground />
 
       {/* Centered phone-width container — fades in after glass is ready */}
       <motion.div

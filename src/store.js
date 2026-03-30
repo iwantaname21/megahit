@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import { randomizeParams, getEntryPrice, calcPnl, nextPrice } from './lib/simulation';
 
 const useGameStore = create((set, get) => ({
+  // Background mode
+  bgMode: 'calm', // 'calm' | 'sleepy'
+  setBgMode: (mode) => set({ bgMode: mode }),
+  toggleBgMode: () => set((s) => ({ bgMode: s.bgMode === 'calm' ? 'sleepy' : 'calm' })),
+
   // User
   balance: 705,
 
@@ -92,13 +97,17 @@ const useGameStore = create((set, get) => ({
     const pnlPct = originalBet > 0 ? (totalPnl / originalBet) * 100 : 0;
     const elapsed = (Date.now() - startTime) / 1000;
 
+    // Mutate in place — no array copy. Cap at 600 points to prevent memory growth.
+    pnlHistory.push({ time: parseFloat(elapsed.toFixed(1)), value: parseFloat(totalPnl.toFixed(2)) });
+    if (pnlHistory.length > 600) pnlHistory.shift();
+
     set({
       currentPrice: newPrice,
       currentPnl: totalPnl,
       pnlPercent: pnlPct,
       isWinning: totalPnl >= 0,
       elapsedTime: elapsed,
-      pnlHistory: [...pnlHistory, { time: parseFloat(elapsed.toFixed(1)), value: parseFloat(totalPnl.toFixed(2)) }],
+      pnlHistory: pnlHistory,
     });
   },
 
@@ -164,7 +173,7 @@ const useGameStore = create((set, get) => ({
       balance: balance + positionSize + unrealizedPnl,
       exitPrice: exitPx,
       currentScreen: 'results',
-      tradeHistory: [trade, ...tradeHistory],
+      tradeHistory: [trade, ...tradeHistory].slice(0, 20),
     });
   },
 

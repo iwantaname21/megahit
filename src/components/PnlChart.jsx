@@ -96,10 +96,13 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const chartW = w - margin * 2;
       const n = pts.length;
 
-      // Target domain
-      const vals = pts.map((p) => p.value);
-      const minV = Math.min(...vals);
-      const maxV = Math.max(...vals);
+      // Target domain — single loop, no intermediate arrays
+      let minV = pts[0].value, maxV = pts[0].value;
+      for (let i = 1; i < n; i++) {
+        const v = pts[i].value;
+        if (v < minV) minV = v;
+        if (v > maxV) maxV = v;
+      }
       const absMax = Math.max(Math.abs(minV), Math.abs(maxV));
       const pad = absMax * 0.25 || 5;
       const targetDomMin = Math.min(minV, 0) - pad;
@@ -122,11 +125,9 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
         return Math.max(22, Math.min(h - 22, y));
       };
 
-      // Target pixel positions for every point
-      const targetPts = pts.map((p, i) => ({
-        x: n <= 1 ? margin + chartW / 2 : margin + (i / (n - 1)) * chartW,
-        y: toYVal(p.value),
-      }));
+      // Target pixel positions — compute without allocating new array
+      const xScale = n <= 1 ? 0 : chartW / (n - 1);
+      const xOff = n <= 1 ? margin + chartW / 2 : margin;
 
       // Detect new tick
       const newTick = d.length !== prevDataLen.current;
@@ -140,35 +141,33 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
       const t = Math.min(elapsed / TICK_MS, 1);
       const eased = 1 - Math.pow(1 - t, 3);
 
-      // Update displayed positions — lerp ALL points toward their targets
+      // Update displayed positions — lerp in place, no new arrays
       const dp = displayedPts.current;
 
       if (markers) {
-        displayedPts.current = targetPts;
-      } else if (dp.length === 0) {
-        displayedPts.current = targetPts.map(p => ({ ...p }));
-      } else {
-        const newDp = [];
+        // Results — no interpolation, compute directly
+        displayedPts.current = [];
         for (let i = 0; i < n; i++) {
-          const tgt = targetPts[i];
-          if (i < dp.length) {
-            // Existing point — lerp x and y
-            newDp.push({
-              x: dp[i].x + (tgt.x - dp[i].x) * eased,
-              y: dp[i].y + (tgt.y - dp[i].y) * eased,
-            });
-          } else if (i === n - 1 && dp.length === n - 1) {
-            // New last point — emerge from previous last
-            const prev = dp[dp.length - 1];
-            newDp.push({
-              x: prev.x + (tgt.x - prev.x) * eased,
-              y: prev.y + (tgt.y - prev.y) * eased,
-            });
-          } else {
-            newDp.push({ ...tgt });
-          }
+          displayedPts.current.push({ x: xOff + i * xScale, y: toYVal(pts[i].value) });
         }
-        displayedPts.current = newDp.slice(0, n);
+      } else if (dp.length === 0) {
+        for (let i = 0; i < n; i++) {
+          dp.push({ x: xOff + i * xScale, y: toYVal(pts[i].value) });
+        }
+      } else {
+        // Grow
+        while (dp.length < n) {
+          const prev = dp.length > 0 ? dp[dp.length - 1] : { x: xOff, y: toYVal(0) };
+          dp.push({ x: prev.x, y: prev.y });
+        }
+        dp.length = n;
+        // Lerp in place
+        for (let i = 0; i < n; i++) {
+          const tx = xOff + i * xScale;
+          const ty = toYVal(pts[i].value);
+          dp[i].x += (tx - dp[i].x) * eased;
+          dp[i].y += (ty - dp[i].y) * eased;
+        }
       }
 
       const rp = displayedPts.current;
@@ -322,7 +321,13 @@ export default function PnlChart({ data, isWinning, showMarkers = false, height 
     };
 
     animRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(animRef.current);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      displayedPts.current = [];
+      domDisp.current = { min: null, max: null };
+      prevDataLen.current = 0;
+      sparklesRef.current = [];
+    };
   }, []);
 
   return (
