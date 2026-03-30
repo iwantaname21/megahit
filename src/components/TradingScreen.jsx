@@ -221,7 +221,7 @@ export default function TradingScreen() {
       <AnimatePresence>
         {splatters && (
           <div key={`sp-${splattersKey}`} className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
-            {Array.from({ length: 14 }).map((_, i) => (
+            {Array.from({ length: 7 }).map((_, i) => (
               <GlassBubble key={`s-${i}`} index={i} positive={splatters.positive} />
             ))}
           </div>

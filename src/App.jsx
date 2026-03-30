@@ -76,19 +76,13 @@ function LoadingScreen({ onComplete }) {
           }}
         >
           <motion.span
-            className="font-black text-2xl tracking-[0.3em] uppercase mb-1"
+            className="font-black text-2xl tracking-widest uppercase"
             style={{ color: 'rgba(255,255,255,0.85)' }}
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           >
             MEGAHIT
           </motion.span>
-          <span
-            className="text-[10px] font-bold tracking-[0.25em] uppercase"
-            style={{ color: 'rgba(255,255,255,0.3)' }}
-          >
-            ARCADE
-          </span>
         </div>
 
         {/* Progress bar */}
