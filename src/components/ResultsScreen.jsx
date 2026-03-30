@@ -250,7 +250,7 @@ export default function ResultsScreen() {
               whileTap={{ scale: 0.9 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               onClick={() => { hapticLight(); spinAgain(); }}
-              className="glass-btn h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase text-[#131314]"
+              className="glass-btn h-14 rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center text-[#131314]"
             >
               HOME
             </motion.button>

@@ -322,12 +322,6 @@ export default function TradingScreen() {
           </motion.button>
         </div>
 
-        <p
-          className="text-center mt-5 text-[11px] font-bold uppercase tracking-widest"
-          style={{ color: 'rgba(19,19,20,0.36)' }}
-        >
-          or screenshot to close
-        </p>
       </motion.div>
     </div>
   );
