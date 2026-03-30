@@ -79,7 +79,7 @@ function ResultChart({ pnlHistory }) {
 }
 
 export default function ResultsScreen() {
-  const { balance, tradeHistory, spinAgain } = useGameStore();
+  const { balance, tradeHistory, spinAgain, bgMode } = useGameStore();
 
   const [revealed, setRevealed] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
@@ -269,10 +269,10 @@ export default function ResultsScreen() {
 
         {/* Balance footer */}
         <div className="mt-5 text-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(19,19,20,0.48)' }}>
+          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: bgMode === 'sleepy' ? 'rgba(255,255,255,0.5)' : 'rgba(19,19,20,0.48)' }}>
             Balance
           </span>
-          <span className="text-[#131314] font-black text-xl ml-2">
+          <span className="font-black text-xl ml-2" style={{ color: bgMode === 'sleepy' ? '#ffffff' : '#131314' }}>
             ${balance.toFixed(2)}
           </span>
         </div>
