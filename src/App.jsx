@@ -181,13 +181,13 @@ export default function App() {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={currentScreen}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{
-              duration: 0.4,
-              ease: [0.25, 0.46, 0.45, 0.94],
-              delay: 0.15,
+              duration: 0.35,
+              ease: 'easeOut',
+              delay: 0.3,
             }}
             className="flex-1 flex flex-col"
           >

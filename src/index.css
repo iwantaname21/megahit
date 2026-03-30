@@ -2,30 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Frosting transition — use a pseudo-element overlay that simulates frosting while
-   backdrop-filter composites, then fades out as the real blur takes over */
-.liquid-glass,
-.glass-nav,
-.glass-nav-dark {
-  position: relative;
-}
-
-.liquid-glass::before,
-.glass-nav::before,
-.glass-nav-dark::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(180, 185, 190, 0.25);
-  pointer-events: none;
-  z-index: 0;
-  animation: frostFade 0.4s ease-out 0.1s forwards;
-}
-
-@keyframes frostFade {
-  to { opacity: 0; }
-}
 
 * {
   -webkit-tap-highlight-color: transparent;
