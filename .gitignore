@@ -4,3 +4,4 @@ dist
 .vercel
 public/calm.mp4
 public/sleepy.mp4
+public/*.mp4
