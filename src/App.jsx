@@ -149,6 +149,29 @@ function LoadingScreen({ onComplete, videoReady }) {
   );
 }
 
+function DelayedScreen({ screen }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setVisible(false);
+    // Render offscreen for 350ms so backdrop-filter composites, then reveal
+    const t = setTimeout(() => setVisible(true), 350);
+    return () => clearTimeout(t);
+  }, [screen]);
+
+  return (
+    <div
+      className="flex-1 flex flex-col transition-opacity duration-300 ease-out"
+      style={{ opacity: visible ? 1 : 0 }}
+    >
+      {screen === 'play' && <PlayScreen />}
+      {screen === 'locking' && <LockingScreen />}
+      {screen === 'trading' && <TradingScreen />}
+      {screen === 'results' && <ResultsScreen />}
+    </div>
+  );
+}
+
 export default function App() {
   const currentScreen = useGameStore((s) => s.currentScreen);
   const [loading, setLoading] = useState(true);
@@ -178,25 +201,7 @@ export default function App() {
         animate={{ opacity: loading ? 0 : 1 }}
         transition={{ duration: 0.6, ease: 'easeOut', delay: loading ? 0 : 0.3 }}
       >
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={currentScreen}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{
-              duration: 0.35,
-              ease: 'easeOut',
-              delay: 0.3,
-            }}
-            className="flex-1 flex flex-col"
-          >
-            {currentScreen === 'play' && <PlayScreen />}
-            {currentScreen === 'locking' && <LockingScreen />}
-            {currentScreen === 'trading' && <TradingScreen />}
-            {currentScreen === 'results' && <ResultsScreen />}
-          </motion.div>
-        </AnimatePresence>
+        <DelayedScreen key={currentScreen} screen={currentScreen} />
       </motion.div>
     </div>
   );
