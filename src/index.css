@@ -2,22 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Delay glass elements from rendering until backdrop-filter composites */
-@keyframes glassReveal {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+/* Frosting transition — use a pseudo-element overlay that simulates frosting while
+   backdrop-filter composites, then fades out as the real blur takes over */
+.liquid-glass,
+.glass-nav,
+.glass-nav-dark {
+  position: relative;
 }
 
-.liquid-glass,
-.glass-tile,
-.glass-btn,
-.glass-btn-green,
-.glass-btn-red,
-.glass-btn-close,
-.glass-nav,
-.glass-nav-dark,
-.sliding-pill {
-  animation: glassReveal 0.3s ease-out 0.05s both;
+.liquid-glass::before,
+.glass-nav::before,
+.glass-nav-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(180, 185, 190, 0.25);
+  pointer-events: none;
+  z-index: 0;
+  animation: frostFade 0.4s ease-out 0.1s forwards;
+}
+
+@keyframes frostFade {
+  to { opacity: 0; }
 }
 
 * {
